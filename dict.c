@@ -271,10 +271,45 @@ void dict_set_allocator(dict_t *dict, dnode_alloc_t al,
 }
 
 /*
+ * Iterative bottom-up (postorder) traversal utility,
+ * which allows the callback to destroy the node.
+ */
+static void safe_traverse(dict_t *dict, void (*func)(dnode_t *, void *))
+{
+    dnode_t *nil = dict_nil(dict), *current = dict_root(dict);
+    enum { from_parent, from_left, from_right } came_from = from_parent;
+
+    while (current != nil) {
+        dnode_t *next = nil; /* Initialized to shut up gcc warning. */
+
+        switch (came_from) {
+        case from_parent:
+            if (current->left != nil) {
+                next = current->left;
+            } else 
+        case from_left:
+            if (current->right != nil) {
+                came_from = from_parent;
+                next = current->right;
+            } else 
+        case from_right:
+            {
+                came_from = (current == current->parent->left) 
+                            ? from_left : from_right;
+                next = current->parent;
+                func(current, dict->context);
+            }
+            break;
+        }
+
+        current = next;
+    }
+}
+
+/*
  * Free a dynamically allocated dictionary object. Removing the nodes
  * from the tree before deleting it is required.
  */
-
 void dict_destroy(dict_t *dict)
 {
     assert (dict_isempty(dict));
@@ -288,8 +323,7 @@ void dict_destroy(dict_t *dict)
 
 void dict_free_nodes(dict_t *dict)
 {
-    dnode_t *nil = dict_nil(dict), *root = dict_root(dict);
-    free_nodes(dict, root, nil);
+    safe_traverse(dict, dict->freenode);
     dict->nodecount = 0;
     dict->nilnode.left = &dict->nilnode;
     dict->nilnode.right = &dict->nilnode;
@@ -349,10 +383,31 @@ void dict_init_like(dict_t *dict, const dict_t *orig)
 }
 
 /*
+ * Initialize with allocator
+ */
+extern dict_t *dict_init_alloc(dict_t *dict, dictcount_t maxcount,
+                               dict_comp_t comp, dnode_alloc_t al,
+                               dnode_free_t fr, void *context)
+{
+    dict->compare = comp;
+    dict->allocnode = al;
+    dict->freenode = fr;
+    dict->context = context;
+    dict->nodecount = 0;
+    dict->maxcount = maxcount;
+    dict->nilnode.left = &dict->nilnode;
+    dict->nilnode.right = &dict->nilnode;
+    dict->nilnode.parent = &dict->nilnode;
+    dict->nilnode.color = dnode_black;
+    dict->dupes = 0;
+    return dict;
+}
+
+/*
  * Remove all nodes from the dictionary (without freeing them in any way).
  */
 
-static void dict_clear(dict_t *dict)
+void dict_clear(dict_t *dict)
 {
     dict->nodecount = 0;
     dict->nilnode.left = &dict->nilnode;
@@ -1445,7 +1500,7 @@ int main(void)
                 free((void *) key);
                 break;
             case 'f':
-                dict_free(d);
+                dict_free_nodes(d);
                 break;
             case 'l':
             case '(':

@@ -99,6 +99,9 @@ extern void dict_free_nodes(dict_t *);
 extern void dict_free(dict_t *);
 extern dict_t *dict_init(dict_t *, dictcount_t, dict_comp_t);
 extern void dict_init_like(dict_t *, const dict_t *);
+extern dict_t *dict_init_alloc(dict_t *, dictcount_t, dict_comp_t,
+                               dnode_alloc_t, dnode_free_t, void *);
+extern void dict_clear(dict_t *);
 extern int dict_verify(dict_t *);
 extern int dict_similar(const dict_t *, const dict_t *);
 extern dnode_t *dict_lookup(dict_t *, const void *);
