@@ -248,7 +248,7 @@ namespace kazlib
         }
     };
 
-    struct static_nodes {
+    struct static_items {
         template <class CONTAINER>
         static void delete_all(CONTAINER &)
         {
@@ -259,7 +259,7 @@ namespace kazlib
         }
     };
 
-    struct dynamic_nodes {
+    struct dynamic_items {
         template <class CONTAINER>
         static void delete_all(CONTAINER &c)
         {
@@ -272,7 +272,7 @@ namespace kazlib
         }
     };
 
-    struct placement_nodes {
+    struct placement_items {
         template <class CONTAINER>
         static void delete_all(CONTAINER &c)
         {
@@ -287,7 +287,7 @@ namespace kazlib
 
     struct dict_dfl_feat {
         typedef dupes_disallowed dupe_feature;
-        typedef static_nodes alloc_feature;
+        typedef static_items alloc_feature;
     };
 
     template <typename FIRST, typename REST>
@@ -333,18 +333,18 @@ namespace kazlib
     };
 
     template <typename REST>
-    struct trait_combinator<static_nodes, REST> : public REST {
-        typedef static_nodes alloc_feature;
+    struct trait_combinator<static_items, REST> : public REST {
+        typedef static_items alloc_feature;
     };
 
     template <typename REST>
-    struct trait_combinator<dynamic_nodes, REST> : public REST {
-        typedef dynamic_nodes alloc_feature;
+    struct trait_combinator<dynamic_items, REST> : public REST {
+        typedef dynamic_items alloc_feature;
     };
 
     template <typename REST>
-    struct trait_combinator<placement_nodes, REST> : public REST {
-        typedef placement_nodes alloc_feature;
+    struct trait_combinator<placement_items, REST> : public REST {
+        typedef placement_items alloc_feature;
     };
 
     template <typename T1 = dict_dfl_feat,

@@ -3510,8 +3510,8 @@ explicitly call initialization functions like \verb|dnode_init| and
     their destructor explicitly, without releasing the underlying memory.
 
     The default choice for this feature is static. The feature is controlled
-    by the traits \verb|static_nodes|, \verb|dynamic_nodes| and
-    \verb|placement_nodes|.
+    by the traits \verb|static_items|, \verb|dynamic_items| and
+    \verb|placement_items|.
 
     \paragraph{The {\tt dict} constructor}
     \indexcppspecial{kazlib}{dict<>}{constructor}
@@ -3564,7 +3564,7 @@ explicitly call initialization functions like \verb|dnode_init| and
     is converted to an \verb|ITEM *| pointer, to which \verb|delete|
     is applied. If the dictionary contains any items which were not allocated
     by the matching \verb|new| operator, the behavior is undefined.
-    If the dictionary is instantiated using the {\tt placement_nodes}
+    If the dictionary is instantiated using the {\tt placement_items}
     trait, then {\tt delete_all} invokes the destructors on all of the nodes.
     That is say, each \verb|ITEM *p| pointer to each item in the dictionary
     is treated with the expression \verb|p->~ITEM()|.
@@ -3818,51 +3818,51 @@ explicitly call initialization functions like \verb|dnode_init| and
     as an argument, specifies that the insertion of duplicates
     is prohibited.
 
-\subsubsection{The {\tt kazlib::static_nodes} trait class}
-    \label{section:kazlib_static_nodes}
-    \indexcppclass{kazlib}{static_nodes}
+\subsubsection{The {\tt kazlib::static_items} trait class}
+    \label{section:kazlib_static_items}
+    \indexcppclass{kazlib}{static_items}
 
     \synopsis
     \begin{verbatim}
-    class static_nodes;
+    class static_items;
     \end{verbatim}
 
     \description
 
-    The \verb|static_nodes| trait, applied to a \verb|dict| template
+    The \verb|static_items| trait, applied to a \verb|dict| template
     as an argument, specifies that the class instantiated
     from the \verb|dict| template shall have a destructor which does
     nothing.
 
-\subsubsection{The {\tt kazlib::dynamic_nodes} trait class}
-    \label{section:kazlib_dynamic_nodes}
-    \indexcppclass{kazlib}{dynamic_nodes}
+\subsubsection{The {\tt kazlib::dynamic_items} trait class}
+    \label{section:kazlib_dynamic_items}
+    \indexcppclass{kazlib}{dynamic_items}
 
     \synopsis
     \begin{verbatim}
-    class dynamic_nodes;
+    class dynamic_items;
     \end{verbatim}
 
     \description
 
-    The \verb|dynamic_nodes| trait, applied to a \verb|dict| template
+    The \verb|dynamic_items| trait, applied to a \verb|dict| template
     as an argument, specifies that the class instantiated
     from the \verb|dict| template shall have a destructor which
     deletes all items which still remain in the dictionary using
     the C++ \verb|delete| operator.
 
-\subsubsection{The {\tt kazlib::placement_nodes} trait class}
-    \label{section:kazlib_placement_nodes}
-    \indexcppclass{kazlib}{placement_nodes}
+\subsubsection{The {\tt kazlib::placement_items} trait class}
+    \label{section:kazlib_placement_items}
+    \indexcppclass{kazlib}{placement_items}
 
     \synopsis
     \begin{verbatim}
-    class placement_nodes;
+    class placement_items;
     \end{verbatim}
 
     \description
 
-    The \verb|placement_nodes| trait, applied to a \verb|dict| template
+    The \verb|placement_items| trait, applied to a \verb|dict| template
     as an argument, specifies that the class instantiated
     from the \verb|dict| template shall have a destructor which
     deletes all items which still remain in the dictionary by
@@ -4038,7 +4038,7 @@ explicitly call initialization functions like \verb|dnode_init| and
     line number followed by a colon and space is prefixed to each line.
     Note that the dictionary items are dynamically allocated with
     the \verb|new| operator.  The dictionary template is instantiated with the
-    \verb|dynamic_nodes| trait, which means that when it is destroyed,
+    \verb|dynamic_items| trait, which means that when it is destroyed,
     it deletes the items with operator \verb|delete|.
 
     \begin{verbatim}
@@ -4056,7 +4056,7 @@ explicitly call initialization functions like \verb|dnode_init| and
     using kazlib::key_is_base;
     using kazlib::dupes_allowed;
     using kazlib::compare_with_function;
-    using kazlib::dynamic_nodes;
+    using kazlib::dynamic_items;
 
 
     class line : public dnode, public string {
@@ -4068,7 +4068,7 @@ explicitly call initialization functions like \verb|dnode_init| and
     int main()
     {
       dict<dnode_is_base<line>, key_is_base<line>,
-           dupes_allowed, dynamic_nodes> d;
+           dupes_allowed, dynamic_items> d;
 
       string s;
       int num = 1;
