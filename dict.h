@@ -101,7 +101,6 @@ extern dict_t *dict_init(dict_t *, dictcount_t, dict_comp_t);
 extern void dict_init_like(dict_t *, const dict_t *);
 extern dict_t *dict_init_alloc(dict_t *, dictcount_t, dict_comp_t,
                                dnode_alloc_t, dnode_free_t, void *);
-extern void dict_clear(dict_t *);
 extern int dict_verify(dict_t *);
 extern int dict_similar(const dict_t *, const dict_t *);
 extern dnode_t *dict_lookup(dict_t *, const void *);
@@ -177,58 +176,290 @@ namespace kazlib
             return 1;
     }
 
-    template <
-        class NODE_METHOD,
-        class KEY_METHOD,
-        class COMPARE_METHOD,
-        bool ALLOW_DUPES = false
-    >
-    class dict_base : public dict_t {
-    private:
-        dict_base(const dict_base &);
-        void operator = (const dict_base &);
-    protected:
-        typedef typename KEY_METHOD::KEY_TYPE KEY;
-        typedef typename NODE_METHOD::ITEM_TYPE ITEM;
-
-        dict_base(dictcount_t count)
+    template <typename KEY, int (*COMP)(const KEY &, const KEY &)>
+    struct compare_with_function {
+        static int compare(const void *left, const void *right)
         {
-            dict_init(this, count, &COMPARE_METHOD::compare);
-            if (ALLOW_DUPES)
-                dict_allow_dupes(this);
+            return COMP(*(const KEY *) left, *(const KEY *) right);
+        }
+    };
+
+    struct dupes_allowed {
+        static const int allowed = 1;
+    };
+
+    struct dupes_disallowed {
+        static const int allowed = 0;
+    };
+
+    template <class ITEM, typename KEY, KEY ITEM::* KEY_OFFSET>
+    struct key_is_member {
+        typedef KEY KEY_TYPE;
+        static void *item2key(ITEM *item)
+        {
+            return &(item->*KEY_OFFSET);
+        }
+    };
+
+    template <class ITEM>
+    struct key_is_base {
+        typedef ITEM KEY_TYPE;
+        static void *item2key(ITEM *item)
+        {
+            return item;
+        }
+    };
+
+    template <class ITEM, dnode ITEM::* DNODE_OFFSET>
+    class dnode_is_member {
+    private:
+        dnode_is_member(const dnode_is_member &);
+        void operator = (const dnode_is_member &);
+    public:
+        typedef ITEM ITEM_TYPE;
+        static ITEM *dnode2item(dnode_t *node)
+        {
+            if (node == 0)
+                return 0;
+            const ptrdiff_t offset = (char *) &(((ITEM *) 0)->*DNODE_OFFSET)
+                                     - ((char *) 0);
+            return (ITEM *) (((char *) node) - offset);
         }
         static dnode_t *item2dnode(ITEM *item)
         {
-            return NODE_METHOD::item2dnode(item);
+            return &(item->*DNODE_OFFSET);
+        }
+    };
+
+    template <class ITEM>
+    class dnode_is_base {
+    private:
+        dnode_is_base(const dnode_is_base &);
+        void operator = (const dnode_is_base &);
+    public:
+        typedef ITEM ITEM_TYPE;
+        static ITEM *dnode2item(dnode_t *node)
+        {
+            return static_cast<ITEM *>(node);
+        }
+        static dnode_t *item2dnode(ITEM *item)
+        {
+            return item;
+        }
+    };
+
+    struct static_nodes {
+        template <class CONTAINER>
+        static void delete_all(CONTAINER &)
+        {
+        }
+        template <class ITEM>
+        static void delete_item(ITEM *)
+        {
+        }
+    };
+
+    struct dynamic_nodes {
+        template <class CONTAINER>
+        static void delete_all(CONTAINER &c)
+        {
+            c.delete_all();
+        }
+        template <class ITEM>
+        static void delete_item(ITEM *item)
+        {
+            delete item;
+        }
+    };
+
+    struct placement_nodes {
+        template <class CONTAINER>
+        static void delete_all(CONTAINER &c)
+        {
+            c.delete_all();
+        }
+        template <class ITEM>
+        static void delete_item(ITEM *item)
+        {
+            item->~ITEM();
+        }
+    };
+
+    struct dict_dfl_feat {
+        typedef dupes_disallowed dupe_feature;
+        typedef static_nodes alloc_feature;
+    };
+
+    template <typename FIRST, typename REST>
+    struct trait_combinator : public FIRST, public REST {
+    };
+
+    template <typename REST, typename KEY, int (*F)(const KEY&, const KEY &)>
+    struct trait_combinator<compare_with_function<KEY, F>, REST>
+    : public REST {
+        typedef compare_with_function<KEY, F> compare_feature;
+    };
+
+    template <typename REST>
+    struct trait_combinator<dupes_allowed, REST> : public REST {
+        typedef dupes_allowed dupe_feature;
+    };
+
+    template <typename REST>
+    struct trait_combinator<dupes_disallowed, REST> : public REST {
+        typedef dupes_disallowed dupe_feature;
+    };
+
+    template <typename REST, class ITEM, typename KEY, KEY ITEM::* KO>
+    struct trait_combinator<key_is_member<ITEM, KEY, KO>, REST> : public REST {
+        typedef key_is_member<ITEM, KEY, KO> key_feature;
+        typedef compare_with_function<KEY, default_compare> compare_feature;
+    };
+
+    template <typename REST, typename KEY>
+    struct trait_combinator<key_is_base<KEY>, REST> : public REST {
+        typedef key_is_base<KEY> key_feature;
+        typedef compare_with_function<KEY, default_compare> compare_feature;
+    };
+
+    template <typename REST, class ITEM, dnode ITEM::* DO>
+    struct trait_combinator<dnode_is_member<ITEM, DO>, REST> : public REST {
+        typedef dnode_is_member<ITEM, DO> dnode_feature;
+    };
+
+    template <typename REST, class ITEM>
+    struct trait_combinator<dnode_is_base<ITEM>, REST> : public REST {
+        typedef dnode_is_base<ITEM> dnode_feature;
+    };
+
+    template <typename REST>
+    struct trait_combinator<static_nodes, REST> : public REST {
+        typedef static_nodes alloc_feature;
+    };
+
+    template <typename REST>
+    struct trait_combinator<dynamic_nodes, REST> : public REST {
+        typedef dynamic_nodes alloc_feature;
+    };
+
+    template <typename REST>
+    struct trait_combinator<placement_nodes, REST> : public REST {
+        typedef placement_nodes alloc_feature;
+    };
+
+    template <typename T1 = dict_dfl_feat,
+              typename T2 = dict_dfl_feat,
+              typename T3 = dict_dfl_feat,
+              typename T4 = dict_dfl_feat,
+              typename T5 = dict_dfl_feat>
+    struct traits
+    : public trait_combinator<T5, traits<T4, T2, T2, T1> >
+    {
+    };
+
+    template <>
+    struct traits<dict_dfl_feat, dict_dfl_feat, dict_dfl_feat,
+                  dict_dfl_feat, dict_dfl_feat>
+    : public dict_dfl_feat
+    {
+    };
+
+    template <typename T1>
+    struct traits<T1, dict_dfl_feat, dict_dfl_feat,
+                  dict_dfl_feat, dict_dfl_feat>
+    : public trait_combinator<T1, dict_dfl_feat>
+    {
+    };
+
+    template <typename T1, typename T2>
+    struct traits<T1, T2, dict_dfl_feat, dict_dfl_feat, dict_dfl_feat>
+    : public trait_combinator<T2, traits<T1> >
+    {
+    };
+
+    template <typename T1, typename T2, typename T3>
+    struct traits<T1, T2, T3, dict_dfl_feat, dict_dfl_feat>
+    : public trait_combinator<T3, traits<T1, T2> >
+    {
+    };
+
+    template <typename T1, typename T2, typename T3, typename T4>
+    struct traits<T1, T2, T3, T4, dict_dfl_feat>
+    : public trait_combinator<T4, traits<T1, T2, T3> >
+    {
+    };
+
+    template <
+        typename TRAIT1 = dict_dfl_feat,
+        typename TRAIT2 = dict_dfl_feat,
+        typename TRAIT3 = dict_dfl_feat,
+        typename TRAIT4 = dict_dfl_feat,
+        typename TRAIT5 = dict_dfl_feat
+    >
+    class dict : public dict_t
+    {
+    private:
+        dict(const dict &);
+        void operator = (const dict &);
+    protected:
+        typedef traits<TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5> tr;
+        typedef typename tr::key_feature::KEY_TYPE KEY;
+        typedef typename tr::dnode_feature::ITEM_TYPE ITEM;
+
+        static dnode_t *item2dnode(ITEM *item)
+        {
+            return tr::dnode_feature::item2dnode(item);
         }
         static ITEM *dnode2item(dnode_t *dnode)
         {
-            return NODE_METHOD::dnode2item(dnode);
+            return tr::dnode_feature::dnode2item(dnode);
         }
         static void *item2key(ITEM *item)
         {
-            return KEY_METHOD::item2key(item);
+            return tr::key_feature::item2key(item);
+        }
+        static void delete_item(dnode_t *dnode, void *)
+        {
+            ITEM *item = tr::dnode_feature::dnode2item(dnode);
+            tr::alloc_feature::delete_item(item);
         }
     public:
-        dictcount_t count() 
+        dict(dictcount_t count = DICTCOUNT_T_MAX)
+        {
+            dict_init_alloc(this, count, tr::compare_feature::compare, 0,
+                            delete_item, 0);
+            if (tr::dupe_feature::allowed)
+                dict_allow_dupes(this);
+        }
+        ~dict()
+        {
+            tr::alloc_feature::delete_all(*this);
+        }
+        dictcount_t count()
         {
             return dict_count(this);
         }
-        void insert(ITEM *pitem)
+        ITEM *insert(ITEM *pitem)
         {
             dict_insert(this, item2dnode(pitem), item2key(pitem));
+            return pitem;
         }
-        void insert(ITEM &item)
+        ITEM &insert(ITEM &item)
         {
-            insert(&item);
+            return *insert(&item);
         }
-        void erase(ITEM *pitem)
+        ITEM *erase(ITEM *pitem)
         {
             dict_delete(this, item2dnode(pitem));
+            return pitem;
         }
-        void erase(ITEM &item)
+        ITEM &erase(ITEM &item)
         {
-            erase(&item);
+            return *erase(&item);
+        }
+        void delete_all()
+        {
+            dict_free(this);
         }
         ITEM *lookup(const KEY *pkey)
         {
@@ -279,207 +510,6 @@ namespace kazlib
             return prev(&item);
         }
     };
-
-    template <class ITEM, dnode ITEM::* DNODE_OFFSET>
-    class dnode_is_member {
-    private:
-        dnode_is_member(const dnode_is_member &);
-        void operator = (const dnode_is_member &);
-    public:
-        typedef ITEM ITEM_TYPE;
-        static ITEM *dnode2item(dnode_t *node)
-        {
-            if (node == 0)
-                return 0;
-            const ptrdiff_t offset = (char *) &(((ITEM *) 0)->*DNODE_OFFSET)
-                                     - ((char *) 0);
-            return (ITEM *) (((char *) node) - offset);
-        }
-        static dnode_t *item2dnode(ITEM *item)
-        {
-            return &(item->*DNODE_OFFSET);
-        }
-    };
-
-    template <class ITEM, typename KEY, KEY ITEM::* KEY_OFFSET>
-    class key_is_member {
-    private:
-        key_is_member(const key_is_member &);
-        void operator = (const key_is_member &);
-    public:
-        typedef KEY KEY_TYPE;
-        static void *item2key(ITEM *item)
-        {
-            return &(item->*KEY_OFFSET);
-        }
-    };
-
-    template <typename KEY, int (*COMP)(const KEY &, const KEY &)>
-    class compare_with_function {
-    private:
-        compare_with_function(const compare_with_function &);
-        void operator = (const compare_with_function &);
-    public:
-        static int compare(const void *left, const void *right)
-        {
-            return COMP(*(const KEY *) left, *(const KEY *) right);
-        }
-    };
-
-    template <class ITEM>
-    class dnode_is_base {
-    private:
-        dnode_is_base(const dnode_is_base &);
-        void operator = (const dnode_is_base &);
-    public:
-        typedef ITEM ITEM_TYPE;
-        static ITEM *dnode2item(dnode_t *node)
-        {
-            return static_cast<ITEM *>(node);
-        }
-        static dnode_t *item2dnode(ITEM *item)
-        {
-            return item;
-        }
-    };
-
-    template <class ITEM>
-    class key_is_base {
-    private:
-        key_is_base(const key_is_base &);
-        void operator = (const key_is_base &);
-    public:
-        typedef ITEM KEY_TYPE;
-        static void *item2key(ITEM *item)
-        {
-            return item;
-        }
-    };
-
-    template <
-        class ITEM,
-        typename KEY,
-        dnode ITEM::* DNODE_OFFSET,
-        KEY ITEM::* KEY_OFFSET,
-        bool ALLOW_DUPES = false,
-        int (*COMP)(const KEY &, const KEY &) = default_compare
-    >
-    class dict : public dict_base<dnode_is_member<ITEM, DNODE_OFFSET>,
-                                  key_is_member<ITEM, KEY, KEY_OFFSET>,
-                                  compare_with_function<KEY, COMP>,
-                                  ALLOW_DUPES>
-    {
-    private:
-        dict(const dict &);
-        void operator = (const dict &);
-    public:
-        dict(dictcount_t dict_count = DICTCOUNT_T_MAX)
-        : dict_base<dnode_is_member<ITEM, DNODE_OFFSET>,
-                    key_is_member<ITEM, KEY, KEY_OFFSET>,
-                    compare_with_function<KEY, COMP>,
-                    ALLOW_DUPES>(dict_count)
-        {
-        }
-    };
-
-    template <
-        class ITEM,
-        bool ALLOW_DUPES = false,
-        int (*COMP)(const ITEM &, const ITEM &) = default_compare
-    >
-    class dict_bdbk : public dict_base<dnode_is_base<ITEM>,
-                                       key_is_base<ITEM>,
-                                       compare_with_function<ITEM, COMP>,
-                                       ALLOW_DUPES>
-    {
-    private:
-        dict_bdbk(const dict_bdbk &);
-        void operator = (const dict_bdbk &);
-    public:
-        dict_bdbk(dictcount_t dict_count = DICTCOUNT_T_MAX)
-        : dict_base<dnode_is_base<ITEM>,
-                    key_is_base<ITEM>,
-                    compare_with_function<ITEM, COMP>,
-                    ALLOW_DUPES>(dict_count)
-        {
-        }
-    };
-
-    template <
-        class ITEM,
-        typename KEY,
-        KEY ITEM::* KEY_OFFSET,
-        bool ALLOW_DUPES = false,
-        int (*COMP)(const KEY &, const KEY &) = default_compare
-    >
-    class dict_bdmk : public dict_base<dnode_is_base<ITEM>,
-                                       key_is_member<ITEM, KEY, KEY_OFFSET>,
-                                       compare_with_function<ITEM, COMP>,
-                                       ALLOW_DUPES>
-    {
-        dict_bdmk(const dict_bdmk &);
-        void operator = (const dict_bdmk &);
-    private:
-        dict_bdmk(dictcount_t dict_count = DICTCOUNT_T_MAX)
-        : dict_base<dnode_is_base<ITEM>,
-                    key_is_member<ITEM, KEY, KEY_OFFSET>,
-                    compare_with_function<ITEM, COMP>,
-                    ALLOW_DUPES>(dict_count)
-        {
-        }
-    };
-
-    template <
-        class ITEM,
-        typename KEY,
-        dnode ITEM::* DNODE_OFFSET,
-        bool ALLOW_DUPES = false,
-        int (*COMP)(const ITEM &, const ITEM &) = default_compare
-    >
-    class dict_mdbk : public dict_base<dnode_is_member<ITEM, DNODE_OFFSET>,
-                                       key_is_base<ITEM>,
-                                       compare_with_function<ITEM, COMP>,
-                                       ALLOW_DUPES>
-    {
-        dict_mdbk(const dict_mdbk &);
-        void operator = (const dict_mdbk &);
-    private:
-        dict_mdbk(dictcount_t dict_count = DICTCOUNT_T_MAX)
-        : dict_base<dnode_is_member<ITEM, DNODE_OFFSET>,
-                    key_is_base<ITEM>,
-                    compare_with_function<ITEM, COMP>,
-                    ALLOW_DUPES>(dict_count)
-        {
-        }
-    };
-
-    template <
-        class ITEM,
-        typename KEY,
-        dnode ITEM::* DNODE_OFFSET,
-        KEY ITEM::* KEY_OFFSET,
-        bool ALLOW_DUPES = false,
-        int (*COMP)(const KEY &, const KEY &) = default_compare
-    >
-    class dict_mdmk : public dict_base<dnode_is_member<ITEM, DNODE_OFFSET>,
-                                       key_is_member<ITEM, KEY, KEY_OFFSET>,
-                                       compare_with_function<KEY, COMP>,
-                                       ALLOW_DUPES>
-    {
-    private:
-        dict_mdmk(const dict_mdmk &);
-        void operator = (const dict_mdmk &);
-    public:
-        dict_mdmk(dictcount_t dict_count = DICTCOUNT_T_MAX)
-        : dict_base<dnode_is_member<ITEM, DNODE_OFFSET>,
-                    key_is_member<ITEM, KEY, KEY_OFFSET>,
-                    compare_with_function<KEY, COMP>,
-                    ALLOW_DUPES>(dict_count)
-        {
-        }
-    };
-
-
 }
 
 #endif

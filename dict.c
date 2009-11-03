@@ -407,7 +407,7 @@ extern dict_t *dict_init_alloc(dict_t *dict, dictcount_t maxcount,
  * Remove all nodes from the dictionary (without freeing them in any way).
  */
 
-void dict_clear(dict_t *dict)
+static void dict_clear(dict_t *dict)
 {
     dict->nodecount = 0;
     dict->nilnode.left = &dict->nilnode;
