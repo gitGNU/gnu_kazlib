@@ -1,21 +1,27 @@
-/*
- * Dictionary Abstract Data Type
- * Copyright (C) 1997 Kaz Kylheku <kaz@ashi.footprints.net>
+/* Copyright 2009
+ * Kaz Kylheku <kkylheku@gmail.com>
+ * Vancouver, Canada
+ * All rights reserved.
  *
- * Free Software License:
+ * BSD License:
  *
- * All rights are reserved by the author, with the following exceptions:
- * Permission is granted to freely reproduce and distribute this software,
- * possibly in exchange for a fee, provided that this copyright notice appears
- * intact. Permission is also granted to adapt this software to produce
- * derivative works, as long as the modified versions carry this copyright
- * notice and additional notices stating that the work has been modified.
- * This source code may be translated into executable form and incorporated
- * into proprietary software; there is no requirement for such software to
- * contain a copyright notice related to this source.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
  *
- * $Id: dict.h,v 1.22.2.6 2000/11/13 01:36:44 kaz Exp $
- * $Name: kazlib_1_20 $
+ *   1. Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in
+ *      the documentation and/or other materials provided with the
+ *      distribution.
+ *   3. The name of the author may not be used to endorse or promote
+ *      products derived from this software without specific prior
+ *      written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 #ifndef DICT_H

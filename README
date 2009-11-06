@@ -55,15 +55,3 @@ memory allocator functions.
 
 Note: this variant of the code also depends on the ability to cast between void
 * and function pointers, which is a common language extension.
-
-4. CVS identification
-
-The source files contain declarations of a static char array variable called
-rcsid. This contains an expansion of the CVS identification of each module,
-making it possible to determine the ``bill of materials'' that went into an
-executable build. I have now wrapped the declarations of these rcsid[] arrays
-so they are conditional on KAZLIB_RCSID being defined. For many users, these
-are just a waste of space.
-
-$Id: README,v 1.13 1999/11/13 10:16:25 kaz Exp $
-$Name: kazlib_1_20 $

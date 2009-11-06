@@ -1,24 +1,27 @@
-/*
- * SFX---A utility which tries to determine whether a given C expression
- * is free of side effects. This can be used for verifying that macros which
- * expand their arguments more than once are not being accidentally misused.
+/* Copyright 2009
+ * Kaz Kylheku <kkylheku@gmail.com>
+ * Vancouver, Canada
+ * All rights reserved.
  *
- * Copyright (C) 1999 Kaz Kylheku <kaz@ashi.footprints.net>
+ * BSD License:
  *
- * Free Software License:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
  *
- * All rights are reserved by the author, with the following exceptions:
- * Permission is granted to freely reproduce and distribute this software,
- * possibly in exchange for a fee, provided that this copyright notice appears
- * intact. Permission is also granted to adapt this software to produce
- * derivative works, as long as the modified versions carry this copyright
- * notice and additional notices stating that the work has been modified.
- * This source code may be translated into executable form and incorporated
- * into proprietary software; there is no requirement for such software to
- * contain a copyright notice related to this source.
+ *   1. Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in
+ *      the documentation and/or other materials provided with the
+ *      distribution.
+ *   3. The name of the author may not be used to endorse or promote
+ *      products derived from this software without specific prior
+ *      written permission.
  *
- * $Id: sfx.c,v 1.30 1999/11/13 08:41:55 kaz Exp $
- * $Name: kazlib_1_20 $
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 #include <ctype.h>
@@ -30,10 +33,6 @@
 #include "hash.h"
 #ifdef KAZLIB_POSIX_THREADS
 #include <pthread.h>
-#endif
-
-#ifdef KAZLIB_RCSID
-static const char rcsid[] = "$Id: sfx.c,v 1.30 1999/11/13 08:41:55 kaz Exp $";
 #endif
 
 /*
