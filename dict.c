@@ -247,22 +247,12 @@ static int verify_dict_has_node(dnode_t *nil, dnode_t *root, dnode_t *node)
 
 dict_t *dict_create(dictcount_t maxcount, dict_comp_t comp)
 {
-    dict_t *new = malloc(sizeof *new);
+    dict_t *dict = (dict_t *) malloc(sizeof *dict);
 
-    if (new) {
-        new->compare = comp;
-        new->allocnode = dnode_alloc;
-        new->freenode = dnode_free;
-        new->context = NULL;
-        new->nodecount = 0;
-        new->maxcount = maxcount;
-        new->nilnode.left = &new->nilnode;
-        new->nilnode.right = &new->nilnode;
-        new->nilnode.parent = &new->nilnode;
-        new->nilnode.color = dnode_black;
-        new->dupes = 0;
-    }
-    return new;
+    if (dict)
+        dict_init(dict, maxcount, comp);
+
+    return dict;
 }
 
 /*
@@ -341,21 +331,21 @@ dict_t *dict_init(dict_t *dict, dictcount_t maxcount, dict_comp_t comp)
  * Initialize a dictionary in the likeness of another dictionary
  */
 
-void dict_init_like(dict_t *dict, const dict_t *template)
+void dict_init_like(dict_t *dict, const dict_t *orig)
 {
-    dict->compare = template->compare;
-    dict->allocnode = template->allocnode;
-    dict->freenode = template->freenode;
-    dict->context = template->context;
+    dict->compare = orig->compare;
+    dict->allocnode = orig->allocnode;
+    dict->freenode = orig->freenode;
+    dict->context = orig->context;
     dict->nodecount = 0;
-    dict->maxcount = template->maxcount;
+    dict->maxcount = orig->maxcount;
     dict->nilnode.left = &dict->nilnode;
     dict->nilnode.right = &dict->nilnode;
     dict->nilnode.parent = &dict->nilnode;
     dict->nilnode.color = dnode_black;
-    dict->dupes = template->dupes;
+    dict->dupes = orig->dupes;
 
-    assert (dict_similar(dict, template));
+    assert (dict_similar(dict, orig));
 }
 
 /*
@@ -686,14 +676,14 @@ void dict_insert(dict_t *dict, dnode_t *node, const void *key)
  * deleted node is returned.
  */
 
-dnode_t *dict_delete(dict_t *dict, dnode_t *delete)
+dnode_t *dict_delete(dict_t *dict, dnode_t *target)
 {
-    dnode_t *nil = dict_nil(dict), *child, *delparent = delete->parent;
+    dnode_t *nil = dict_nil(dict), *child, *delparent = target->parent;
 
     /* basic deletion */
 
     assert (!dict_isempty(dict));
-    assert (dict_contains(dict, delete));
+    assert (dict_contains(dict, target));
 
     /*
      * If the node being deleted has two children, then we replace it with its
@@ -707,8 +697,8 @@ dnode_t *dict_delete(dict_t *dict, dnode_t *delete)
      * one node to another behind the user's back.
      */
 
-    if (delete->left != nil && delete->right != nil) {
-        dnode_t *next = dict_next(dict, delete);
+    if (target->left != nil && target->right != nil) {
+        dnode_t *next = dict_next(dict, target);
         dnode_t *nextparent = next->parent;
         dnode_color_t nextcolor = next->color;
 
@@ -737,39 +727,39 @@ dnode_t *dict_delete(dict_t *dict, dnode_t *delete)
          */
 
         next->parent = delparent;
-        next->left = delete->left;
-        next->right = delete->right;
+        next->left = target->left;
+        next->right = target->right;
         next->left->parent = next;
         next->right->parent = next;
-        next->color = delete->color;
-        delete->color = nextcolor;
+        next->color = target->color;
+        target->color = nextcolor;
 
-        if (delparent->left == delete) {
+        if (delparent->left == target) {
             delparent->left = next;
         } else {
-            assert (delparent->right == delete);
+            assert (delparent->right == target);
             delparent->right = next;
         }
 
     } else {
-        assert (delete != nil);
-        assert (delete->left == nil || delete->right == nil);
+        assert (target != nil);
+        assert (target->left == nil || target->right == nil);
 
-        child = (delete->left != nil) ? delete->left : delete->right;
+        child = (target->left != nil) ? target->left : target->right;
 
-        child->parent = delparent = delete->parent;
+        child->parent = delparent = target->parent;
 
-        if (delete == delparent->left) {
+        if (target == delparent->left) {
             delparent->left = child;
         } else {
-            assert (delete == delparent->right);
+            assert (target == delparent->right);
             delparent->right = child;
         }
     }
 
-    delete->parent = NULL;
-    delete->right = NULL;
-    delete->left = NULL;
+    target->parent = NULL;
+    target->right = NULL;
+    target->left = NULL;
 
     dict->nodecount--;
 
@@ -777,7 +767,7 @@ dnode_t *dict_delete(dict_t *dict, dnode_t *delete)
 
     /* red-black adjustments */
 
-    if (delete->color == dnode_black) {
+    if (target->color == dnode_black) {
         dnode_t *parent, *sister;
 
         dict_root(dict)->color = dnode_red;
@@ -852,7 +842,7 @@ dnode_t *dict_delete(dict_t *dict, dnode_t *delete)
 
     assert (dict_verify(dict));
 
-    return delete;
+    return target;
 }
 
 /*
@@ -998,7 +988,7 @@ int dict_contains(dict_t *dict, dnode_t *node)
 
 static dnode_t *dnode_alloc(void *context)
 {
-    return malloc(sizeof *dnode_alloc(NULL));
+    return (dnode_t *) malloc(sizeof *dnode_alloc(NULL));
 }
 
 static void dnode_free(dnode_t *node, void *context)
@@ -1008,14 +998,14 @@ static void dnode_free(dnode_t *node, void *context)
 
 dnode_t *dnode_create(void *data)
 {
-    dnode_t *new = malloc(sizeof *new);
-    if (new) {
-        new->data = data;
-        new->parent = NULL;
-        new->left = NULL;
-        new->right = NULL;
+    dnode_t *dnode = (dnode_t *) malloc(sizeof *dnode);
+    if (dnode) {
+        dnode->data = data;
+        dnode->parent = NULL;
+        dnode->left = NULL;
+        dnode->right = NULL;
     }
-    return new;
+    return dnode;
 }
 
 dnode_t *dnode_init(dnode_t *dnode, void *data)
@@ -1145,7 +1135,7 @@ void dict_load_end(dict_load_t *load)
         if (complete == NULL) {
             curr->left = dictnil;
             curr->right = dictnil;
-            curr->color = level % 2;
+            curr->color = (dnode_color_t) (level % 2);
             complete = curr;
 
             assert (level == baselevel);
@@ -1157,7 +1147,7 @@ void dict_load_end(dict_load_t *load)
             }
         } else {
             curr->left = complete;
-            curr->color = (level + 1) % 2;
+            curr->color = (dnode_color_t) ((level + 1) % 2);
             complete->parent = curr;
             tree[level] = curr;
             complete = 0;
@@ -1278,16 +1268,16 @@ static int tokenize(char *string, ...)
 
 static int comparef(const void *key1, const void *key2)
 {
-    return strcmp(key1, key2);
+    return strcmp((const char *) key1, (const char *) key2);
 }
 
 static char *dupstring(char *str)
 {
     int sz = strlen(str) + 1;
-    char *new = malloc(sz);
-    if (new)
-        memcpy(new, str, sz);
-    return new;
+    char *dup = (char *) malloc(sz);
+    if (dup)
+        memcpy(dup, str, sz);
+    return dup;
 }
 
 static dnode_t *new_node(void *c)
@@ -1378,7 +1368,7 @@ int main(void)
     dict_t darray[10];
     dict_t *d = &darray[0];
     dnode_t *dn;
-    int i;
+    size_t i;
     char *tok1, *tok2, *val;
     const char *key;
 
@@ -1447,8 +1437,8 @@ int main(void)
                     puts("dict_lookup failed");
                     break;
                 }
-                val = dnode_get(dn);
-                key = dnode_getkey(dn);
+                val = (char *) dnode_get(dn);
+                key = (char *) dnode_getkey(dn);
                 dict_delete_free(d, dn);
 
                 free(val);
@@ -1488,7 +1478,7 @@ int main(void)
                     puts("lookup failed");
                     break;
                 }
-                val = dnode_get(dn);
+                val = (char *) dnode_get(dn);
                 puts(val);
                 break;
             case 'm':

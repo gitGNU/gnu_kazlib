@@ -251,12 +251,12 @@ static void chk_spec_qual_list(context_t *expr)
 
 static int speculate(void (*chk_func)(context_t *), context_t *expr, context_t *copy, int nextchar)
 {
-    static const except_id_t catch[] = { { SFX_EX, XCEPT_CODE_ANY } };
+    static const except_id_t match[] = { { SFX_EX, XCEPT_CODE_ANY } };
     except_t *ex;
     volatile int result = 0;
     assign_context(copy, expr);
 
-    except_try_push(catch, 1, &ex);
+    except_try_push(match, 1, &ex);
 
     if (ex == 0) {
         chk_func(copy);
@@ -985,7 +985,7 @@ static void chk_comma(context_t *expr)
 
 int sfx_determine(const char *expr, sfx_rating_t *eff)
 {
-    static const except_id_t catch[] = { { SFX_EX, XCEPT_CODE_ANY } };
+    static const except_id_t match[] = { { SFX_EX, XCEPT_CODE_ANY } };
     except_t *ex;
     context_t ctx;
     volatile int retval = 1;
@@ -995,7 +995,7 @@ int sfx_determine(const char *expr, sfx_rating_t *eff)
 
     init_context(&ctx, (const unsigned char *) expr);
 
-    except_try_push(catch, 1, &ex);
+    except_try_push(match, 1, &ex);
 
     if (ex == 0) {
         chk_comma(&ctx);
@@ -1062,7 +1062,7 @@ static int lookup_cache(const char *expr, sfx_rating_t *rating)
     unlock_cache();
 
     if (cache_node != 0) {
-        sfx_entry_t *cache_entry = hnode_get(cache_node);
+        sfx_entry_t *cache_entry = (sfx_entry_t *) hnode_get(cache_node);
         *rating = cache_entry->eff;
         return 1;
     }
@@ -1085,7 +1085,7 @@ static int cache_result(const char *expr, sfx_rating_t rating)
     cache_node = hash_lookup(cache, expr);
 
     if (!cache_node) {
-        sfx_entry_t *cache_entry = malloc(sizeof *cache_entry);
+        sfx_entry_t *cache_entry = (sfx_entry_t *) malloc(sizeof *cache_entry);
 
         if (cache_entry == 0)
             goto bail_unlock;
@@ -1095,7 +1095,7 @@ static int cache_result(const char *expr, sfx_rating_t rating)
         cache_entry->eff = rating;
         hash_insert(cache, &cache_entry->node, expr);
     } else {
-        sfx_entry_t *cache_entry = hnode_get(cache_node);
+        sfx_entry_t *cache_entry = (sfx_entry_t *) hnode_get(cache_node);
         cache_entry->eff = rating;
         result = 1;
     }

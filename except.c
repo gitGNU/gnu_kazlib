@@ -286,7 +286,7 @@ void except_throwd(long group, long code, const char *msg, void *data)
 
 void except_throwf(long group, long code, const char *fmt, ...)
 {
-    char *buf = except_alloc(XCEPT_BUFFER_SIZE);
+    char *buf = (char *) except_alloc(XCEPT_BUFFER_SIZE);
     va_list vl;
 
     va_start (vl, fmt);
@@ -376,14 +376,14 @@ static void bottom_level(void)
 
 static void top_level(void)
 {
-    except_cleanup_push(cleanup, "argument");
+    except_cleanup_push(cleanup, (void *) "argument");
     bottom_level();
     except_cleanup_pop(0);
 }
 
 int main(int argc, char **argv)
 {
-    static const except_id_t catch[] = { { 1, 1 }, { 1, 2 } };
+    static const except_id_t match[] = { { 1, 1 }, { 1, 2 } };
     except_t *ex;
 
     /*
@@ -391,10 +391,10 @@ int main(int argc, char **argv)
      */
 
     /* outer */
-    except_try_push(catch, 2, &ex);
+    except_try_push(match, 2, &ex);
     if (!ex) {
         /* inner */
-        except_try_push(catch, 2, &ex);
+        except_try_push(match, 2, &ex);
         if (!ex) {
             top_level();
         } else {

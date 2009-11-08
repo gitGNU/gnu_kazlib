@@ -73,15 +73,15 @@ list_t *list_init(list_t *list, listcount_t maxcount)
 
 list_t *list_create(listcount_t maxcount)
 {
-    list_t *new = malloc(sizeof *new);
-    if (new) {
+    list_t *list = (list_t *) malloc(sizeof *list);
+    if (list) {
         assert (maxcount != 0);
-        new->nilnode.next = &new->nilnode;
-        new->nilnode.prev = &new->nilnode;
-        new->nodecount = 0;
-        new->maxcount = maxcount;
+        list->nilnode.next = &list->nilnode;
+        list->nilnode.prev = &list->nilnode;
+        list->nodecount = 0;
+        list->maxcount = maxcount;
     }
-    return new;
+    return list;
 }
 
 /*
@@ -137,46 +137,46 @@ void list_return_nodes(list_t *list, lnodepool_t *pool)
 }
 
 /*
- * Insert the node ``new'' into the list immediately after ``this'' node.
+ * Insert the node ``node'' into the list immediately after ``pred'' node.
  */
 
-void list_ins_after(list_t *list, lnode_t *new, lnode_t *this)
+void list_ins_after(list_t *list, lnode_t *node, lnode_t *pred)
 {
-    lnode_t *that = this->next;
+    lnode_t *succ = pred->next;
 
-    assert (new != NULL);
-    assert (!list_contains(list, new));
-    assert (!lnode_is_in_a_list(new));
-    assert (this == list_nil(list) || list_contains(list, this));
+    assert (node != NULL);
+    assert (!list_contains(list, node));
+    assert (!lnode_is_in_a_list(node));
+    assert (pred == list_nil(list) || list_contains(list, pred));
     assert (list->nodecount + 1 > list->nodecount);
 
-    new->prev = this;
-    new->next = that;
-    that->prev = new;
-    this->next = new;
+    node->prev = pred;
+    node->next = succ;
+    succ->prev = node;
+    pred->next = node;
     list->nodecount++;
 
     assert (list->nodecount <= list->maxcount);
 }
 
 /*
- * Insert the node ``new'' into the list immediately before ``this'' node.
+ * Insert the node ``node'' into the list immediately before ``succ'' node.
  */
 
-void list_ins_before(list_t *list, lnode_t *new, lnode_t *this)
+void list_ins_before(list_t *list, lnode_t *node, lnode_t *succ)
 {
-    lnode_t *that = this->prev;
+    lnode_t *pred = succ->prev;
 
-    assert (new != NULL);
-    assert (!list_contains(list, new));
-    assert (!lnode_is_in_a_list(new));
-    assert (this == list_nil(list) || list_contains(list, this));
+    assert (node != NULL);
+    assert (!list_contains(list, node));
+    assert (!lnode_is_in_a_list(node));
+    assert (succ == list_nil(list) || list_contains(list, succ));
     assert (list->nodecount + 1 > list->nodecount);
 
-    new->next = this;
-    new->prev = that;
-    that->next = new;
-    this->prev = new;
+    node->next = succ;
+    node->prev = pred;
+    pred->next = node;
+    succ->prev = node;
     list->nodecount++;
 
     assert (list->nodecount <= list->maxcount);
@@ -229,13 +229,13 @@ void list_process(list_t *list, void *context,
 
 lnode_t *lnode_create(void *data)
 {
-    lnode_t *new = malloc(sizeof *new);
-    if (new) {
-        new->data = data;
-        new->next = NULL;
-        new->prev = NULL;
+    lnode_t *node = (lnode_t *) malloc(sizeof *node);
+    if (node) {
+        node->data = data;
+        node->next = NULL;
+        node->prev = NULL;
     }
-    return new;
+    return node;
 }
 
 /*
@@ -294,10 +294,10 @@ lnodepool_t *lnode_pool_create(listcount_t n)
 
     assert (n != 0);
 
-    pool = malloc(sizeof *pool);
+    pool = (lnodepool_t *) malloc(sizeof *pool);
     if (!pool)
         return NULL;
-    nodes = malloc(n * sizeof *nodes);
+    nodes = (lnode_t *) malloc(n * sizeof *nodes);
     if (!nodes) {
         free(pool);
         return NULL;
@@ -342,14 +342,14 @@ void lnode_pool_destroy(lnodepool_t *p)
 
 lnode_t *lnode_borrow(lnodepool_t *pool, void *data)
 {
-    lnode_t *new = pool->fre;
-    if (new) {
-        pool->fre = new->next;
-        new->data = data;
-        new->next = NULL;
-        new->prev = NULL;
+    lnode_t *node = pool->fre;
+    if (node) {
+        pool->fre = node->next;
+        node->data = data;
+        node->next = NULL;
+        node->prev = NULL;
     }
-    return new;
+    return node;
 }
 
 /*
@@ -810,16 +810,16 @@ static int tokenize(char *string, ...)
 
 static int comparef(const void *key1, const void *key2)
 {
-    return strcmp(key1, key2);
+    return strcmp((const char *) key1, (const char *) key2);
 }
 
 static char *dupstring(char *str)
 {
     int sz = strlen(str) + 1;
-    char *new = malloc(sz);
-    if (new)
-        memcpy(new, str, sz);
-    return new;
+    char *dup = (char *) malloc(sz);
+    if (dup)
+        memcpy(dup, str, sz);
+    return dup;
 }
 
 int main(void)
@@ -884,7 +884,7 @@ int main(void)
                     break;
                 }
                 list_delete(l, ln);
-                val = lnode_get(ln);
+                val = (char *) lnode_get(ln);
                 lnode_destroy(ln);
                 free(val);
                 break;
@@ -907,7 +907,7 @@ int main(void)
                 break;
             case 't':
                 for (ln = list_first(l); ln != 0; ln = list_next(l, ln))
-                    puts(lnode_get(ln));
+                    puts((char *) lnode_get(ln));
                 break;
             case 'q':
                 exit(0);
