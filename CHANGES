@@ -30,7 +30,7 @@ New in 1.18
        dict_similar: determine whether two dictionaries are similar;
        dict_merge: merge contents of one dictionary to another.
     5. Dictionary test main can juggle multiple dictionaries, and test
-       dict_merge. 
+       dict_merge.
     6. If a hash node is inserted into some hash, it is a now a constraint
        violation to insert it again into some hash.
     7. The hash_scan_delete_free function has been implemented; it is to
@@ -84,7 +84,7 @@ New in 1.15
        Thirdly, empty parentheses weren't handled right in treatment of
        ambiguous expressions, e.g. (a)() was declared a syntax error.
     7. Changed the representation of hash table chains. They are now
-       singly linked lists, which means that the overhead of managing 
+       singly linked lists, which means that the overhead of managing
        back pointers is gone. Only deletion is slightly more complicated
        now because it has to search from the beginning of the chain.
        [Rationale: this is okay, since chains are supposed to be short
@@ -109,7 +109,7 @@ New in 1.14
     5. Side effect assertion interface now performs caching, to avoid
        parsing the same expressions over and over again.  Thus debugging with
        KAZLIB_SIDEEFFECT_DEBUG incurs a smaller performance hit.
-    6. Major bugfix to sfx expression parser. The function dealing with 
+    6. Major bugfix to sfx expression parser. The function dealing with
        disambiguating casts had to be rewritten to do more sophisticated
        lookahead and backtracking. It all started with Mark Brady discovered
        that (a++)+b was being incorrectly diagnosed as a syntax error.
@@ -129,7 +129,7 @@ New in 1.13
        function pointer dereference in unhandled exception case.
     4. Macros beginning with E[A-Z] have been renamed to stay out
        of space reserved for <errno.h>.
-    5. Identifiers in exwrap.[ch] have been renamed from having 
+    5. Identifiers in exwrap.[ch] have been renamed from having
        ex_ prefixed to having exwrap_ prefixes.
 
 New in 1.12
@@ -137,7 +137,7 @@ New in 1.12
     1. COOL! New module for detecting side effects in C expressions.
     2. Serious bugfix in hash_init().  The computation of the initial hash
        mask was completely botched up. Historically this code has seen little
-       testing because hashing over a user supplied table is not extendible. 
+       testing because hashing over a user supplied table is not extendible.
        Users of hash_create() are not affected.
     3. Tried to make computation of hash_val_t_bit more threadsafe. It should
        be okay if writes to int objects are atomic, and concurrent writes of
@@ -281,7 +281,7 @@ New in 1.5
        support for user-defined allocators; the default allocators use the
        smalloc.c routines. For any instance of a dict_t or hash_t object, the
        user can override the allocator functions by supplying his or her
-       own pointers to suitable functions, and a context pointer that 
+       own pointers to suitable functions, and a context pointer that
        will be passed to these functions when they are called through that
        particular dict_t or hash_t instance. [Rationale: flexibility, ease of
        use, promotes good design.] The funtion pointers can only be set when

@@ -265,7 +265,7 @@ static int speculate(void (*chk_func)(context_t *), context_t *expr, context_t *
 	    match_hard(copy, nextchar);
 	}
 	result = 1;
-    } 
+    }
 
     except_try_pop();
 
@@ -349,7 +349,7 @@ static void chk_direct_decl(context_t *expr, decl_t type)
 	    ch = peek_next(expr);
 	    if (ch != ']')
 		chk_conditional(expr);
-	    match_hard(expr, ']');		
+	    match_hard(expr, ']');
 	} else if ((type == decl_concrete || type == decl_both) && (isalpha(ch) || ch == '_')) {
 	    put_back(expr, ch);
 	    skip_ident(expr);
@@ -369,7 +369,7 @@ static void chk_decl(context_t *expr, decl_t type)
     ch = peek_next(expr);
     if (ch == '[' || ch == '(' || ((type == decl_concrete || type == decl_both) && (isalpha(ch) || ch == '_'))) {
 	chk_direct_decl(expr, type);
-    } 
+    }
 }
 
 static void chk_typename(context_t *expr)
@@ -651,7 +651,7 @@ static void chk_cast(context_t *expr)
 	 * the result of the call to function X with parameter Y? Or is it the
 	 * unary expression + 1 cast to type Y and X? The safer assumption is
 	 * to go with the function call hypothesis, since that's the
-	 * interpretation that may have side effects. 
+	 * interpretation that may have side effects.
 	 */
 
 	switch (curr) {
@@ -701,7 +701,7 @@ static void chk_cast(context_t *expr)
 		    chk_postfix(expr);
 		    return;
 		}
-		/* reparse expression followed by non-parenthesized 
+		/* reparse expression followed by non-parenthesized
 		   stuff as postfix expression */
 		assign_context(expr, &cur_expr);
 		chk_postfix(expr);
@@ -789,7 +789,6 @@ static void chk_relational(context_t *expr)
 	chk_shift(expr);
 	ch = get_next_skip_ws(expr);
 
-	
 	if (ch != '<' && ch != '>') {
 	    put_back(expr, ch);
 	    break;
@@ -920,7 +919,7 @@ static void chk_conditional(context_t *expr)
 	}
 
 	chk_comma(expr);
-	
+
 	skip_ws(expr);
 	match_hard(expr, ':');
     }
@@ -977,7 +976,7 @@ static void chk_comma(context_t *expr)
 /*
  * This function returns 1 if the expression is successfully parsed,
  * or 0 if there is a syntax error.
- * 
+ *
  * The object pointed to by eff is set to indicate the side effect ranking of
  * the parsed expression: sfx_none, sfx_potential and sfx_certain.  These
  * rankins mean, respectively, that there are no side effects, that there are
@@ -1103,7 +1102,6 @@ static int cache_result(const char *expr, sfx_rating_t rating)
 
     result = 1;
 
-    
 bail_unlock:
     unlock_cache();
 

@@ -85,8 +85,8 @@ void *lnode_get(lnode_t *);
 int lnode_is_in_a_list(lnode_t *);
 
 #if defined(LIST_IMPLEMENTATION) || !defined(KAZLIB_OPAQUE_DEBUG)
-#define lnode_put(N, D)		((N)->list_data = (D))
-#define lnode_get(N)		((N)->list_data)
+#define lnode_put(N, D)         ((N)->list_data = (D))
+#define lnode_get(N)            ((N)->list_data)
 #endif
 
 lnodepool_t *lnode_pool_init(lnodepool_t *, lnode_t *, listcount_t);
@@ -127,21 +127,21 @@ void list_process(list_t *, void *, void (*)(list_t *, lnode_t *, void *));
 int list_verify(list_t *);
 
 #if defined(LIST_IMPLEMENTATION) || !defined(KAZLIB_OPAQUE_DEBUG)
-#define lnode_pool_isempty(P)	((P)->list_free == 0)
-#define list_count(L)		((L)->list_nodecount)
-#define list_isempty(L)		((L)->list_nodecount == 0)
-#define list_isfull(L)		(LIST_SFX_CHECK(L)->list_nodecount == (L)->list_maxcount)
-#define list_next(L, N)		(LIST_SFX_CHECK(N)->list_next == &(L)->list_nilnode ? NULL : (N)->list_next)
-#define list_prev(L, N)		(LIST_SFX_CHECK(N)->list_prev == &(L)->list_nilnode ? NULL : (N)->list_prev)
-#define list_first(L)		list_next(LIST_SFX_CHECK(L), &(L)->list_nilnode)
-#define list_last(L)		list_prev(LIST_SFX_CHECK(L), &(L)->list_nilnode)
+#define lnode_pool_isempty(P)   ((P)->list_free == 0)
+#define list_count(L)           ((L)->list_nodecount)
+#define list_isempty(L)         ((L)->list_nodecount == 0)
+#define list_isfull(L)          (LIST_SFX_CHECK(L)->list_nodecount == (L)->list_maxcount)
+#define list_next(L, N)         (LIST_SFX_CHECK(N)->list_next == &(L)->list_nilnode ? NULL : (N)->list_next)
+#define list_prev(L, N)         (LIST_SFX_CHECK(N)->list_prev == &(L)->list_nilnode ? NULL : (N)->list_prev)
+#define list_first(L)           list_next(LIST_SFX_CHECK(L), &(L)->list_nilnode)
+#define list_last(L)            list_prev(LIST_SFX_CHECK(L), &(L)->list_nilnode)
 #endif
 
 #if defined(LIST_IMPLEMENTATION) || !defined(KAZLIB_OPAQUE_DEBUG)
-#define list_append(L, N)	list_ins_before(LIST_SFX_CHECK(L), N, &(L)->list_nilnode)
-#define list_prepend(L, N)	list_ins_after(LIST_SFX_CHECK(L), N, &(L)->list_nilnode)
-#define list_del_first(L)	list_delete(LIST_SFX_CHECK(L), list_first(L))
-#define list_del_last(L)	list_delete(LIST_SFX_CHECK(L), list_last(L))
+#define list_append(L, N)       list_ins_before(LIST_SFX_CHECK(L), N, &(L)->list_nilnode)
+#define list_prepend(L, N)      list_ins_after(LIST_SFX_CHECK(L), N, &(L)->list_nilnode)
+#define list_del_first(L)       list_delete(LIST_SFX_CHECK(L), list_first(L))
+#define list_del_last(L)        list_delete(LIST_SFX_CHECK(L), list_last(L))
 #endif
 
 /* destination list on the left, source on the right */

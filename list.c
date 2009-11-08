@@ -96,7 +96,7 @@ void list_destroy(list_t *list)
 }
 
 /*
- * Free all of the nodes of a list. The list must contain only 
+ * Free all of the nodes of a list. The list must contain only
  * dynamically allocated nodes. After this call, the list
  * is empty.
  */
@@ -337,7 +337,7 @@ void lnode_pool_destroy(lnodepool_t *p)
 
 /*
  * Borrow a node from a node pool. Returns a null pointer if the pool
- * is exhausted. 
+ * is exhausted.
  */
 
 lnode_t *lnode_borrow(lnodepool_t *pool, void *data)
@@ -417,7 +417,7 @@ void list_extract(list_t *dest, list_t *source, lnode_t *first, lnode_t *last)
 	assert (first != list_nil(source));	/* oops, last before first! */
 	moved++;
     }
-    
+
     /* assert no overflows */
     assert (source->nodecount - moved <= source->nodecount);
     assert (dest->nodecount + moved >= dest->nodecount);
@@ -466,7 +466,7 @@ void list_transfer(list_t *dest, list_t *source, lnode_t *first)
 	first = first->next;
 	moved++;
     }
-    
+
     /* assert no overflows */
     assert (source->nodecount - moved <= source->nodecount);
     assert (dest->nodecount + moved >= dest->nodecount);
@@ -534,12 +534,12 @@ void list_sort(list_t *list, int compare(const void *, const void *))
 
 	while (middle--)
 	    node = lnode_next(node);
-	
+
 	list_transfer(&extra, list, node);
 	list_sort(list, compare);
 	list_sort(&extra, compare);
 	list_merge(list, &extra, compare);
-    } 
+    }
     assert (list_is_sorted(list, compare));
 }
 
@@ -551,7 +551,7 @@ lnode_t *list_find(list_t *list, const void *key, int compare(const void *, cons
 	if (compare(lnode_get(node), key) == 0)
 	    return node;
     }
-    
+
     return 0;
 }
 
@@ -609,7 +609,7 @@ int list_isempty(list_t *list)
 
 /*
  * Return 1 if the list is full, 0 otherwise
- * Permitted only on bounded lists. 
+ * Permitted only on bounded lists.
  */
 
 int list_isfull(list_t *list)
@@ -713,7 +713,7 @@ void *lnode_get(lnode_t *lnode)
 }
 
 /*
- * Retrieve the node's successor. If there is no successor, 
+ * Retrieve the node's successor. If there is no successor,
  * NULL is returned.
  */
 
@@ -768,7 +768,7 @@ int list_verify(list_t *list)
 
     if (count != 0 || node != nil)
 	return 0;
-    
+
     return 1;
 }
 
@@ -783,7 +783,7 @@ typedef char input_t[256];
 
 static int tokenize(char *string, ...)
 {
-    char **tokptr; 
+    char **tokptr;
     va_list arglist;
     int tokcount = 0;
 
@@ -862,7 +862,7 @@ int main(void)
 		}
 		val = dupstring(tok1);
 		ln = lnode_create(val);
-	
+
 		if (!val || !ln) {
 		    puts("allocation failure");
 		    if (ln)
@@ -870,7 +870,7 @@ int main(void)
 		    free(val);
 		    break;
 		}
-    
+
 		list_append(l, ln);
 		break;
 	    case 'd':

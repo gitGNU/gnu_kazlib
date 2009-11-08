@@ -31,8 +31,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define XCEPT_GROUP_ANY	0
-#define XCEPT_CODE_ANY	0
+#define XCEPT_GROUP_ANY 0
+#define XCEPT_CODE_ANY  0
 #define XCEPT_BAD_ALLOC 1
 
 #ifdef __cplusplus
@@ -72,16 +72,16 @@ struct except_stacknode {
     struct except_stacknode *except_down;
     enum except_stacktype except_type;
     union {
-	struct except_catch *except_catcher;	
-	struct except_cleanup *except_cleanup;
+        struct except_catch *except_catcher;
+        struct except_cleanup *except_cleanup;
     } except_info;
 };
 
 /* private functions made external so they can be used in macros */
 void except_setup_clean(struct except_stacknode *,
-	struct except_cleanup *, void (*)(void *), void *);
+        struct except_cleanup *, void (*)(void *), void *);
 void except_setup_try(struct except_stacknode *,
-	struct except_catch *, const except_id_t [], size_t);
+        struct except_catch *, const except_id_t [], size_t);
 struct except_stacknode *except_pop(void);
 
 /* public interface functions */
@@ -111,45 +111,45 @@ void except_free(void *);
 #endif
 
 /*
- * void except_cleanup_push(void (*)(void *), void *); 
+ * void except_cleanup_push(void (*)(void *), void *);
  * void except_cleanup_pop(int);
  * void except_checked_cleanup_pop(void (*)(void *), int);
  * void except_try_push(const except_id_t [], size_t, except_t **);
  * void except_try_pop(void);
  */
 
-#define except_cleanup_push(F, C) 				\
-    {								\
-	struct except_stacknode except_sn;			\
-	struct except_cleanup except_cl;			\
-	except_setup_clean(&except_sn, &except_cl, F, C)
+#define except_cleanup_push(F, C)                               \
+    {                                                           \
+        struct except_stacknode except_sn;                      \
+        struct except_cleanup except_cl;                        \
+        except_setup_clean(&except_sn, &except_cl, F, C)
 
-#define except_cleanup_pop(E)					\
-	except_pop();						\
-	if (E)							\
-	    except_cl.except_func(except_cl.except_context);	\
+#define except_cleanup_pop(E)                                   \
+        except_pop();                                           \
+        if (E)                                                  \
+            except_cl.except_func(except_cl.except_context);    \
     }
 
-#define except_checked_cleanup_pop(F, E)			\
-    	except_pop();						\
-	assert (except_cl.except_func == (F));			\
-	if (E)							\
-	    except_cl.except_func(except_cl.except_context);	\
+#define except_checked_cleanup_pop(F, E)                        \
+        except_pop();                                           \
+        assert (except_cl.except_func == (F));                  \
+        if (E)                                                  \
+            except_cl.except_func(except_cl.except_context);    \
     }
-	
-#define except_try_push(ID, NUM, PPE)				\
-     {								\
-	struct except_stacknode except_sn;			\
-	struct except_catch except_ch;				\
-	except_setup_try(&except_sn, &except_ch, ID, NUM);	\
-	if (setjmp(except_ch.except_jmp))			\
-	    *(PPE) = &except_ch.except_obj;			\
-	else							\
-	    *(PPE) = 0
 
-#define except_try_pop()					\
-	except_free(except_ch.except_obj.except_dyndata);	\
-	except_pop();						\
-    } 
+#define except_try_push(ID, NUM, PPE)                           \
+     {                                                          \
+        struct except_stacknode except_sn;                      \
+        struct except_catch except_ch;                          \
+        except_setup_try(&except_sn, &except_ch, ID, NUM);      \
+        if (setjmp(except_ch.except_jmp))                       \
+            *(PPE) = &except_ch.except_obj;                     \
+        else                                                    \
+            *(PPE) = 0
+
+#define except_try_pop()                                        \
+        except_free(except_ch.except_obj.except_dyndata);       \
+        except_pop();                                           \
+    }
 
 #endif

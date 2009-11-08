@@ -33,7 +33,7 @@
 /*
  * These macros provide short convenient names for structure members,
  * which are embellished with dict_ prefixes so that they are
- * properly confined to the documented namespace. It's legal for a 
+ * properly confined to the documented namespace. It's legal for a
  * program which uses dict to define, for instance, a macro called ``parent''.
  * Such a macro would interfere with the dnode_t struct definition.
  * In general, highly portable and reusable C modules which expose their
@@ -88,10 +88,10 @@ static void rotate_left(dnode_t *upper)
        the sentinel nil node, and root->parent->left points back to root */
 
     if (upper == upparent->left) {
-	upparent->left = lower;
+        upparent->left = lower;
     } else {
-	assert (upper == upparent->right);
-	upparent->right = lower;
+        assert (upper == upparent->right);
+        upparent->right = lower;
     }
 
     lower->left = upper;
@@ -114,10 +114,10 @@ static void rotate_right(dnode_t *upper)
     lower->parent = upparent = upper->parent;
 
     if (upper == upparent->right) {
-	upparent->right = lower;
+        upparent->right = lower;
     } else {
-	assert (upper == upparent->left);
-	upparent->left = lower;
+        assert (upper == upparent->left);
+        upparent->left = lower;
     }
 
     lower->right = upper;
@@ -132,7 +132,7 @@ static void rotate_right(dnode_t *upper)
 static void free_nodes(dict_t *dict, dnode_t *node, dnode_t *nil)
 {
     if (node == nil)
-	return;
+        return;
     free_nodes(dict, node->left, nil);
     free_nodes(dict, node->right, nil);
     dict->freenode(node, dict->context);
@@ -144,7 +144,7 @@ static void free_nodes(dict_t *dict, dnode_t *node, dnode_t *nil)
  * dict_next() successor function, verifying that the key of each node is
  * strictly lower than that of its successor, if duplicates are not allowed,
  * or lower or equal if duplicates are allowed.  This function is used for
- * debugging purposes. 
+ * debugging purposes.
  */
 
 static int verify_bintree(dict_t *dict)
@@ -154,17 +154,17 @@ static int verify_bintree(dict_t *dict)
     first = dict_first(dict);
 
     if (dict->dupes) {
-	while (first && (next = dict_next(dict, first))) {
-	    if (dict->compare(first->key, next->key) > 0)
-		return 0;
-	    first = next;
-	}
+        while (first && (next = dict_next(dict, first))) {
+            if (dict->compare(first->key, next->key) > 0)
+                return 0;
+            first = next;
+        }
     } else {
-	while (first && (next = dict_next(dict, first))) {
-	    if (dict->compare(first->key, next->key) >= 0)
-		return 0;
-	    first = next;
-	}
+        while (first && (next = dict_next(dict, first))) {
+            if (dict->compare(first->key, next->key) >= 0)
+                return 0;
+            first = next;
+        }
     }
     return 1;
 }
@@ -188,23 +188,23 @@ static unsigned int verify_redblack(dnode_t *nil, dnode_t *root)
     unsigned height_left, height_right;
 
     if (root != nil) {
-	height_left = verify_redblack(nil, root->left);
-	height_right = verify_redblack(nil, root->right);
-	if (height_left == 0 || height_right == 0)
-	    return 0;
-	if (height_left != height_right)
-	    return 0;
-	if (root->color == dnode_red) {
-	    if (root->left->color != dnode_black)
-		return 0;
-	    if (root->right->color != dnode_black)
-		return 0;
-	    return height_left;
-	}
-	if (root->color != dnode_black)
-	    return 0;
-	return height_left + 1;
-    } 
+        height_left = verify_redblack(nil, root->left);
+        height_right = verify_redblack(nil, root->right);
+        if (height_left == 0 || height_right == 0)
+            return 0;
+        if (height_left != height_right)
+            return 0;
+        if (root->color == dnode_red) {
+            if (root->left->color != dnode_black)
+                return 0;
+            if (root->right->color != dnode_black)
+                return 0;
+            return height_left;
+        }
+        if (root->color != dnode_black)
+            return 0;
+        return height_left + 1;
+    }
     return 1;
 }
 
@@ -217,10 +217,10 @@ static unsigned int verify_redblack(dnode_t *nil, dnode_t *root)
 static dictcount_t verify_node_count(dnode_t *nil, dnode_t *root)
 {
     if (root == nil)
-	return 0;
+        return 0;
     else
-	return 1 + verify_node_count(nil, root->left)
-	    + verify_node_count(nil, root->right);
+        return 1 + verify_node_count(nil, root->left)
+            + verify_node_count(nil, root->right);
 }
 
 /*
@@ -233,9 +233,9 @@ static dictcount_t verify_node_count(dnode_t *nil, dnode_t *root)
 static int verify_dict_has_node(dnode_t *nil, dnode_t *root, dnode_t *node)
 {
     if (root != nil) {
-	return root == node
-		|| verify_dict_has_node(nil, root->left, node)
-		|| verify_dict_has_node(nil, root->right, node);
+        return root == node
+                || verify_dict_has_node(nil, root->left, node)
+                || verify_dict_has_node(nil, root->right, node);
     }
     return 0;
 }
@@ -250,17 +250,17 @@ dict_t *dict_create(dictcount_t maxcount, dict_comp_t comp)
     dict_t *new = malloc(sizeof *new);
 
     if (new) {
-	new->compare = comp;
-	new->allocnode = dnode_alloc;
-	new->freenode = dnode_free;
-	new->context = NULL;
-	new->nodecount = 0;
-	new->maxcount = maxcount;
-	new->nilnode.left = &new->nilnode;
-	new->nilnode.right = &new->nilnode;
-	new->nilnode.parent = &new->nilnode;
-	new->nilnode.color = dnode_black;
-	new->dupes = 0;
+        new->compare = comp;
+        new->allocnode = dnode_alloc;
+        new->freenode = dnode_free;
+        new->context = NULL;
+        new->nodecount = 0;
+        new->maxcount = maxcount;
+        new->nilnode.left = &new->nilnode;
+        new->nilnode.right = &new->nilnode;
+        new->nilnode.parent = &new->nilnode;
+        new->nilnode.color = dnode_black;
+        new->dupes = 0;
     }
     return new;
 }
@@ -270,7 +270,7 @@ dict_t *dict_create(dictcount_t maxcount, dict_comp_t comp)
  */
 
 void dict_set_allocator(dict_t *dict, dnode_alloc_t al,
-	dnode_free_t fr, void *context)
+        dnode_free_t fr, void *context)
 {
     assert (dict_count(dict) == 0);
     assert ((al == NULL && fr == NULL) || (al != NULL && fr != NULL));
@@ -337,7 +337,7 @@ dict_t *dict_init(dict_t *dict, dictcount_t maxcount, dict_comp_t comp)
     return dict;
 }
 
-/* 
+/*
  * Initialize a dictionary in the likeness of another dictionary
  */
 
@@ -377,7 +377,7 @@ static void dict_clear(dict_t *dict)
  * debugging purposes, and should be placed in assert statements.   Just because
  * this function succeeds doesn't mean that the tree is not corrupt. Certain
  * corruptions in the tree may simply cause undefined behavior.
- */ 
+ */
 
 int dict_verify(dict_t *dict)
 {
@@ -385,22 +385,22 @@ int dict_verify(dict_t *dict)
 
     /* check that the sentinel node and root node are black */
     if (root->color != dnode_black)
-	return 0;
+        return 0;
     if (nil->color != dnode_black)
-	return 0;
+        return 0;
     if (nil->right != nil)
-	return 0;
+        return 0;
     /* nil->left is the root node; check that its parent pointer is nil */
     if (nil->left->parent != nil)
-	return 0;
+        return 0;
     /* perform a weak test that the tree is a binary search tree */
     if (!verify_bintree(dict))
-	return 0;
+        return 0;
     /* verify that the tree is a red-black tree */
     if (!verify_redblack(nil, root))
-	return 0;
+        return 0;
     if (verify_node_count(nil, root) != dict_count(dict))
-	return 0;
+        return 0;
     return 1;
 }
 
@@ -412,26 +412,26 @@ int dict_verify(dict_t *dict)
 int dict_similar(const dict_t *left, const dict_t *right)
 {
     if (left->compare != right->compare)
-	return 0;
+        return 0;
 
     if (left->allocnode != right->allocnode)
-	return 0;
+        return 0;
 
     if (left->freenode != right->freenode)
-	return 0;
+        return 0;
 
     if (left->context != right->context)
-	return 0;
+        return 0;
 
     if (left->dupes != right->dupes)
-	return 0;
+        return 0;
 
     return 1;
 }
 
 /*
  * Locate a node in the dictionary having the given key.
- * If the node is not found, a null a pointer is returned (rather than 
+ * If the node is not found, a null a pointer is returned (rather than
  * a pointer that dictionary's nil sentinel node), otherwise a pointer to the
  * located node is returned.
  */
@@ -446,24 +446,24 @@ dnode_t *dict_lookup(dict_t *dict, const void *key)
     /* simple binary search adapted for trees that contain duplicate keys */
 
     while (root != nil) {
-	result = dict->compare(key, root->key);
-	if (result < 0)
-	    root = root->left;
-	else if (result > 0)
-	    root = root->right;
-	else {
-	    if (!dict->dupes) {	/* no duplicates, return match		*/
-		return root;
-	    } else {		/* could be dupes, find leftmost one	*/
-		do {
-		    saved = root;
-		    root = root->left;
-		    while (root != nil && dict->compare(key, root->key))
-			root = root->right;
-		} while (root != nil);
-		return saved;
-	    }
-	}
+        result = dict->compare(key, root->key);
+        if (result < 0)
+            root = root->left;
+        else if (result > 0)
+            root = root->right;
+        else {
+            if (!dict->dupes) { /* no duplicates, return match          */
+                return root;
+            } else {            /* could be dupes, find leftmost one    */
+                do {
+                    saved = root;
+                    root = root->left;
+                    while (root != nil && dict->compare(key, root->key))
+                        root = root->right;
+                } while (root != nil);
+                return saved;
+            }
+        }
     }
 
     return NULL;
@@ -481,23 +481,23 @@ dnode_t *dict_lower_bound(dict_t *dict, const void *key)
     dnode_t *tentative = 0;
 
     while (root != nil) {
-	int result = dict->compare(key, root->key);
+        int result = dict->compare(key, root->key);
 
-	if (result > 0) {
-	    root = root->right;
-	} else if (result < 0) {
-	    tentative = root;
-	    root = root->left;
-	} else {
-	    if (!dict->dupes) {
-	    	return root;
-	    } else {
-		tentative = root;
-		root = root->left;
-	    }
-	} 
+        if (result > 0) {
+            root = root->right;
+        } else if (result < 0) {
+            tentative = root;
+            root = root->left;
+        } else {
+            if (!dict->dupes) {
+                return root;
+            } else {
+                tentative = root;
+                root = root->left;
+            }
+        }
     }
-    
+
     return tentative;
 }
 
@@ -513,23 +513,23 @@ dnode_t *dict_upper_bound(dict_t *dict, const void *key)
     dnode_t *tentative = 0;
 
     while (root != nil) {
-	int result = dict->compare(key, root->key);
+        int result = dict->compare(key, root->key);
 
-	if (result < 0) {
-	    root = root->left;
-	} else if (result > 0) {
-	    tentative = root;
-	    root = root->right;
-	} else {
-	    if (!dict->dupes) {
-	    	return root;
-	    } else {
-		tentative = root;
-		root = root->right;
-	    }
-	} 
+        if (result < 0) {
+            root = root->left;
+        } else if (result > 0) {
+            tentative = root;
+            root = root->right;
+        } else {
+            if (!dict->dupes) {
+                return root;
+            } else {
+                tentative = root;
+                root = root->right;
+            }
+        }
     }
-    
+
     return tentative;
 }
 
@@ -544,14 +544,14 @@ dnode_t *dict_strict_lower_bound(dict_t *dict, const void *key)
     dnode_t *tentative = 0;
 
     while (root != nil) {
-	int result = dict->compare(key, root->key);
+        int result = dict->compare(key, root->key);
 
-	if (result >= 0) {
-	    root = root->right;
-	} else {
-	    tentative = root;
-	    root = root->left;
-	} 
+        if (result >= 0) {
+            root = root->right;
+        } else {
+            tentative = root;
+            root = root->left;
+        }
     }
 
     return tentative;
@@ -568,14 +568,14 @@ dnode_t *dict_strict_upper_bound(dict_t *dict, const void *key)
     dnode_t *tentative = 0;
 
     while (root != nil) {
-	int result = dict->compare(key, root->key);
+        int result = dict->compare(key, root->key);
 
-	if (result <= 0) {
-	    root = root->left;
-	} else {
-	    tentative = root;
-	    root = root->right;
-	} 
+        if (result <= 0) {
+            root = root->left;
+        } else {
+            tentative = root;
+            root = root->right;
+        }
     }
 
     return tentative;
@@ -604,22 +604,22 @@ void dict_insert(dict_t *dict, dnode_t *node, const void *key)
     /* basic binary tree insert */
 
     while (where != nil) {
-	parent = where;
-	result = dict->compare(key, where->key);
-	/* trap attempts at duplicate key insertion unless it's explicitly allowed */
-	assert (dict->dupes || result != 0);
-	if (result < 0)
-	    where = where->left;
-	else
-	    where = where->right;
+        parent = where;
+        result = dict->compare(key, where->key);
+        /* trap attempts at duplicate key insertion unless it's explicitly allowed */
+        assert (dict->dupes || result != 0);
+        if (result < 0)
+            where = where->left;
+        else
+            where = where->right;
     }
 
     assert (where == nil);
 
     if (result < 0)
-	parent->left = node;
+        parent->left = node;
     else
-	parent->right = node;
+        parent->right = node;
 
     node->parent = parent;
     node->left = nil;
@@ -632,47 +632,47 @@ void dict_insert(dict_t *dict, dnode_t *node, const void *key)
     node->color = dnode_red;
 
     while (parent->color == dnode_red) {
-	grandpa = parent->parent;
-	if (parent == grandpa->left) {
-	    uncle = grandpa->right;
-	    if (uncle->color == dnode_red) {	/* red parent, red uncle */
-		parent->color = dnode_black;
-		uncle->color = dnode_black;
-		grandpa->color = dnode_red;
-		node = grandpa;
-		parent = grandpa->parent;
-	    } else {				/* red parent, black uncle */
-	    	if (node == parent->right) {
-		    rotate_left(parent);
-		    parent = node;
-		    assert (grandpa == parent->parent);
-		    /* rotation between parent and child preserves grandpa */
-		}
-		parent->color = dnode_black;
-		grandpa->color = dnode_red;
-		rotate_right(grandpa);
-		break;
-	    }
-	} else { 	/* symmetric cases: parent == parent->parent->right */
-	    uncle = grandpa->left;
-	    if (uncle->color == dnode_red) {
-		parent->color = dnode_black;
-		uncle->color = dnode_black;
-		grandpa->color = dnode_red;
-		node = grandpa;
-		parent = grandpa->parent;
-	    } else {
-	    	if (node == parent->left) {
-		    rotate_right(parent);
-		    parent = node;
-		    assert (grandpa == parent->parent);
-		}
-		parent->color = dnode_black;
-		grandpa->color = dnode_red;
-		rotate_left(grandpa);
-		break;
-	    }
-	}
+        grandpa = parent->parent;
+        if (parent == grandpa->left) {
+            uncle = grandpa->right;
+            if (uncle->color == dnode_red) {    /* red parent, red uncle */
+                parent->color = dnode_black;
+                uncle->color = dnode_black;
+                grandpa->color = dnode_red;
+                node = grandpa;
+                parent = grandpa->parent;
+            } else {                            /* red parent, black uncle */
+                if (node == parent->right) {
+                    rotate_left(parent);
+                    parent = node;
+                    assert (grandpa == parent->parent);
+                    /* rotation between parent and child preserves grandpa */
+                }
+                parent->color = dnode_black;
+                grandpa->color = dnode_red;
+                rotate_right(grandpa);
+                break;
+            }
+        } else {        /* symmetric cases: parent == parent->parent->right */
+            uncle = grandpa->left;
+            if (uncle->color == dnode_red) {
+                parent->color = dnode_black;
+                uncle->color = dnode_black;
+                grandpa->color = dnode_red;
+                node = grandpa;
+                parent = grandpa->parent;
+            } else {
+                if (node == parent->left) {
+                    rotate_right(parent);
+                    parent = node;
+                    assert (grandpa == parent->parent);
+                }
+                parent->color = dnode_black;
+                grandpa->color = dnode_red;
+                rotate_left(grandpa);
+                break;
+            }
+        }
     }
 
     dict_root(dict)->color = dnode_black;
@@ -708,63 +708,63 @@ dnode_t *dict_delete(dict_t *dict, dnode_t *delete)
      */
 
     if (delete->left != nil && delete->right != nil) {
-	dnode_t *next = dict_next(dict, delete);
-	dnode_t *nextparent = next->parent;
-	dnode_color_t nextcolor = next->color;
+        dnode_t *next = dict_next(dict, delete);
+        dnode_t *nextparent = next->parent;
+        dnode_color_t nextcolor = next->color;
 
-	assert (next != nil);
-	assert (next->parent != nil);
-	assert (next->left == nil);
+        assert (next != nil);
+        assert (next->parent != nil);
+        assert (next->left == nil);
 
-	/*
-	 * First, splice out the successor from the tree completely, by
-	 * moving up its right child into its place.
-	 */
+        /*
+         * First, splice out the successor from the tree completely, by
+         * moving up its right child into its place.
+         */
 
-	child = next->right;
-	child->parent = nextparent;
+        child = next->right;
+        child->parent = nextparent;
 
-	if (nextparent->left == next) {
-	    nextparent->left = child;
-	} else {
-	    assert (nextparent->right == next);
-	    nextparent->right = child;
-	}
+        if (nextparent->left == next) {
+            nextparent->left = child;
+        } else {
+            assert (nextparent->right == next);
+            nextparent->right = child;
+        }
 
-	/*
-	 * Now that the successor has been extricated from the tree, install it
-	 * in place of the node that we want deleted.
-	 */
+        /*
+         * Now that the successor has been extricated from the tree, install it
+         * in place of the node that we want deleted.
+         */
 
-	next->parent = delparent;
-	next->left = delete->left;
-	next->right = delete->right;
-	next->left->parent = next;
-	next->right->parent = next;
-	next->color = delete->color;
-	delete->color = nextcolor;
+        next->parent = delparent;
+        next->left = delete->left;
+        next->right = delete->right;
+        next->left->parent = next;
+        next->right->parent = next;
+        next->color = delete->color;
+        delete->color = nextcolor;
 
-	if (delparent->left == delete) {
-	    delparent->left = next;
-	} else {
-	    assert (delparent->right == delete);
-	    delparent->right = next;
-	}
+        if (delparent->left == delete) {
+            delparent->left = next;
+        } else {
+            assert (delparent->right == delete);
+            delparent->right = next;
+        }
 
     } else {
-	assert (delete != nil);
-	assert (delete->left == nil || delete->right == nil);
+        assert (delete != nil);
+        assert (delete->left == nil || delete->right == nil);
 
-	child = (delete->left != nil) ? delete->left : delete->right;
+        child = (delete->left != nil) ? delete->left : delete->right;
 
-	child->parent = delparent = delete->parent;	    
+        child->parent = delparent = delete->parent;
 
-	if (delete == delparent->left) {
-	    delparent->left = child;    
-	} else {
-	    assert (delete == delparent->right);
-	    delparent->right = child;
-	}
+        if (delete == delparent->left) {
+            delparent->left = child;
+        } else {
+            assert (delete == delparent->right);
+            delparent->right = child;
+        }
     }
 
     delete->parent = NULL;
@@ -778,76 +778,76 @@ dnode_t *dict_delete(dict_t *dict, dnode_t *delete)
     /* red-black adjustments */
 
     if (delete->color == dnode_black) {
-	dnode_t *parent, *sister;
+        dnode_t *parent, *sister;
 
-	dict_root(dict)->color = dnode_red;
+        dict_root(dict)->color = dnode_red;
 
-	while (child->color == dnode_black) {
-	    parent = child->parent;
-	    if (child == parent->left) {
-		sister = parent->right;
-		assert (sister != nil);
-		if (sister->color == dnode_red) {
-		    sister->color = dnode_black;
-		    parent->color = dnode_red;
-		    rotate_left(parent);
-		    sister = parent->right;
-		    assert (sister != nil);
-		}
-		if (sister->left->color == dnode_black
-			&& sister->right->color == dnode_black) {
-		    sister->color = dnode_red;
-		    child = parent;
-		} else {
-		    if (sister->right->color == dnode_black) {
-			assert (sister->left->color == dnode_red);
-			sister->left->color = dnode_black;
-			sister->color = dnode_red;
-			rotate_right(sister);
-			sister = parent->right;
-			assert (sister != nil);
-		    }
-		    sister->color = parent->color;
-		    sister->right->color = dnode_black;
-		    parent->color = dnode_black;
-		    rotate_left(parent);
-		    break;
-		}
-	    } else {	/* symmetric case: child == child->parent->right */
-		assert (child == parent->right);
-		sister = parent->left;
-		assert (sister != nil);
-		if (sister->color == dnode_red) {
-		    sister->color = dnode_black;
-		    parent->color = dnode_red;
-		    rotate_right(parent);
-		    sister = parent->left;
-		    assert (sister != nil);
-		}
-		if (sister->right->color == dnode_black
-			&& sister->left->color == dnode_black) {
-		    sister->color = dnode_red;
-		    child = parent;
-		} else {
-		    if (sister->left->color == dnode_black) {
-			assert (sister->right->color == dnode_red);
-			sister->right->color = dnode_black;
-			sister->color = dnode_red;
-			rotate_left(sister);
-			sister = parent->left;
-			assert (sister != nil);
-		    }
-		    sister->color = parent->color;
-		    sister->left->color = dnode_black;
-		    parent->color = dnode_black;
-		    rotate_right(parent);
-		    break;
-		}
-	    }
-	}
+        while (child->color == dnode_black) {
+            parent = child->parent;
+            if (child == parent->left) {
+                sister = parent->right;
+                assert (sister != nil);
+                if (sister->color == dnode_red) {
+                    sister->color = dnode_black;
+                    parent->color = dnode_red;
+                    rotate_left(parent);
+                    sister = parent->right;
+                    assert (sister != nil);
+                }
+                if (sister->left->color == dnode_black
+                        && sister->right->color == dnode_black) {
+                    sister->color = dnode_red;
+                    child = parent;
+                } else {
+                    if (sister->right->color == dnode_black) {
+                        assert (sister->left->color == dnode_red);
+                        sister->left->color = dnode_black;
+                        sister->color = dnode_red;
+                        rotate_right(sister);
+                        sister = parent->right;
+                        assert (sister != nil);
+                    }
+                    sister->color = parent->color;
+                    sister->right->color = dnode_black;
+                    parent->color = dnode_black;
+                    rotate_left(parent);
+                    break;
+                }
+            } else {    /* symmetric case: child == child->parent->right */
+                assert (child == parent->right);
+                sister = parent->left;
+                assert (sister != nil);
+                if (sister->color == dnode_red) {
+                    sister->color = dnode_black;
+                    parent->color = dnode_red;
+                    rotate_right(parent);
+                    sister = parent->left;
+                    assert (sister != nil);
+                }
+                if (sister->right->color == dnode_black
+                        && sister->left->color == dnode_black) {
+                    sister->color = dnode_red;
+                    child = parent;
+                } else {
+                    if (sister->left->color == dnode_black) {
+                        assert (sister->right->color == dnode_red);
+                        sister->right->color = dnode_black;
+                        sister->color = dnode_red;
+                        rotate_left(sister);
+                        sister = parent->left;
+                        assert (sister != nil);
+                    }
+                    sister->color = parent->color;
+                    sister->left->color = dnode_black;
+                    parent->color = dnode_black;
+                    rotate_right(parent);
+                    break;
+                }
+            }
+        }
 
-	child->color = dnode_black;
-	dict_root(dict)->color = dnode_black;
+        child->color = dnode_black;
+        dict_root(dict)->color = dnode_black;
     }
 
     assert (dict_verify(dict));
@@ -865,9 +865,9 @@ int dict_alloc_insert(dict_t *dict, const void *key, void *data)
     dnode_t *node = dict->allocnode(dict->context);
 
     if (node) {
-	dnode_init(node, data);
-	dict_insert(dict, node, key);
-	return 1;
+        dnode_init(node, data);
+        dict_insert(dict, node, key);
+        return 1;
     }
     return 0;
 }
@@ -888,8 +888,8 @@ dnode_t *dict_first(dict_t *dict)
     dnode_t *nil = dict_nil(dict), *root = dict_root(dict), *left;
 
     if (root != nil)
-	while ((left = root->left) != nil)
-	    root = left;
+        while ((left = root->left) != nil)
+            root = left;
 
     return (root == nil) ? NULL : root;
 }
@@ -904,8 +904,8 @@ dnode_t *dict_last(dict_t *dict)
     dnode_t *nil = dict_nil(dict), *root = dict_root(dict), *right;
 
     if (root != nil)
-	while ((right = root->right) != nil)
-	    root = right;
+        while ((right = root->right) != nil)
+            root = right;
 
     return (root == nil) ? NULL : root;
 }
@@ -922,17 +922,17 @@ dnode_t *dict_next(dict_t *dict, dnode_t *curr)
     dnode_t *nil = dict_nil(dict), *parent, *left;
 
     if (curr->right != nil) {
-	curr = curr->right;
-	while ((left = curr->left) != nil)
-	    curr = left;
-	return curr;
+        curr = curr->right;
+        while ((left = curr->left) != nil)
+            curr = left;
+        return curr;
     }
 
     parent = curr->parent;
 
     while (parent != nil && curr == parent->right) {
-	curr = parent;
-	parent = curr->parent;
+        curr = parent;
+        parent = curr->parent;
     }
 
     return (parent == nil) ? NULL : parent;
@@ -948,17 +948,17 @@ dnode_t *dict_prev(dict_t *dict, dnode_t *curr)
     dnode_t *nil = dict_nil(dict), *parent, *right;
 
     if (curr->left != nil) {
-	curr = curr->left;
-	while ((right = curr->right) != nil)
-	    curr = right;
-	return curr;
+        curr = curr->left;
+        while ((right = curr->right) != nil)
+            curr = right;
+        return curr;
     }
 
     parent = curr->parent;
 
     while (parent != nil && curr == parent->left) {
-	curr = parent;
-	parent = curr->parent;
+        curr = parent;
+        parent = curr->parent;
     }
 
     return (parent == nil) ? NULL : parent;
@@ -1010,10 +1010,10 @@ dnode_t *dnode_create(void *data)
 {
     dnode_t *new = malloc(sizeof *new);
     if (new) {
-	new->data = data;
-	new->parent = NULL;
-	new->left = NULL;
-	new->right = NULL;
+        new->data = data;
+        new->parent = NULL;
+        new->left = NULL;
+        new->right = NULL;
     }
     return new;
 }
@@ -1058,12 +1058,12 @@ void dict_process(dict_t *dict, void *context, dnode_process_t function)
     dnode_t *node = dict_first(dict), *next;
 
     while (node != NULL) {
-	/* check for callback function deleting	*/
-	/* the next node from under us		*/
-	assert (dict_contains(dict, node));
-	next = dict_next(dict, node);
-	function(dict, node, context);
-	node = next;
+        /* check for callback function deleting */
+        /* the next node from under us          */
+        assert (dict_contains(dict, node));
+        next = dict_next(dict, node);
+        function(dict, node, context);
+        node = next;
     }
 }
 
@@ -1084,16 +1084,16 @@ void dict_load_next(dict_load_t *load, dnode_t *newnode, const void *key)
 {
     dict_t *dict = load->dictptr;
     dnode_t *nil = &load->nilnode;
-   
+
     assert (!dnode_is_in_a_dict(newnode));
     assert (dict->nodecount < dict->maxcount);
 
     #ifndef NDEBUG
     if (dict->nodecount > 0) {
-	if (dict->dupes)
-	    assert (dict->compare(nil->left->key, key) <= 0);
-	else
-	    assert (dict->compare(nil->left->key, key) < 0);
+        if (dict->dupes)
+            assert (dict->compare(nil->left->key, key) <= 0);
+        else
+            assert (dict->compare(nil->left->key, key) < 0);
     }
     #endif
 
@@ -1117,63 +1117,63 @@ void dict_load_end(dict_load_t *load)
     assert (dnode_red == 0 && dnode_black == 1);
 
     while (fullcount >= nodecount && fullcount)
-	fullcount >>= 1;
+        fullcount >>= 1;
 
     botrowcount = nodecount - fullcount;
 
     for (curr = loadnil->left; curr != loadnil; curr = next) {
-	next = curr->left;
+        next = curr->left;
 
-	if (complete == NULL && botrowcount-- == 0) {
-	    assert (baselevel == 0);
-	    assert (level == 0);
-	    baselevel = level = 1;
-	    complete = tree[0];
+        if (complete == NULL && botrowcount-- == 0) {
+            assert (baselevel == 0);
+            assert (level == 0);
+            baselevel = level = 1;
+            complete = tree[0];
 
-	    if (complete != 0) {
-		tree[0] = 0;
-		complete->right = dictnil;
-		while (tree[level] != 0) {
-		    tree[level]->right = complete;
-		    complete->parent = tree[level];
-		    complete = tree[level];
-		    tree[level++] = 0;
-		}
-	    }
-	}
+            if (complete != 0) {
+                tree[0] = 0;
+                complete->right = dictnil;
+                while (tree[level] != 0) {
+                    tree[level]->right = complete;
+                    complete->parent = tree[level];
+                    complete = tree[level];
+                    tree[level++] = 0;
+                }
+            }
+        }
 
-	if (complete == NULL) {
-	    curr->left = dictnil;
-	    curr->right = dictnil;
-	    curr->color = level % 2;
-	    complete = curr;
+        if (complete == NULL) {
+            curr->left = dictnil;
+            curr->right = dictnil;
+            curr->color = level % 2;
+            complete = curr;
 
-	    assert (level == baselevel);
-	    while (tree[level] != 0) {
-		tree[level]->right = complete;
-		complete->parent = tree[level];
-		complete = tree[level];
-		tree[level++] = 0;
-	    }
-	} else {
-	    curr->left = complete;
-	    curr->color = (level + 1) % 2;
-	    complete->parent = curr;
-	    tree[level] = curr;
-	    complete = 0;
-	    level = baselevel;
-	}
+            assert (level == baselevel);
+            while (tree[level] != 0) {
+                tree[level]->right = complete;
+                complete->parent = tree[level];
+                complete = tree[level];
+                tree[level++] = 0;
+            }
+        } else {
+            curr->left = complete;
+            curr->color = (level + 1) % 2;
+            complete->parent = curr;
+            tree[level] = curr;
+            complete = 0;
+            level = baselevel;
+        }
     }
 
     if (complete == NULL)
-	complete = dictnil;
+        complete = dictnil;
 
     for (i = 0; i < DICT_DEPTH_MAX; i++) {
-	if (tree[i] != 0) {
-	    tree[i]->right = complete;
-	    complete->parent = tree[i];
-	    complete = tree[i];
-	}
+        if (tree[i] != 0) {
+            tree[i]->right = complete;
+            complete->parent = tree[i];
+            complete = tree[i];
+        }
     }
 
     dictnil->color = dnode_black;
@@ -1190,50 +1190,50 @@ void dict_merge(dict_t *dest, dict_t *source)
     dict_load_t load;
     dnode_t *leftnode = dict_first(dest), *rightnode = dict_first(source);
 
-    assert (dict_similar(dest, source));	
+    assert (dict_similar(dest, source));
 
     if (source == dest)
-	return;
+        return;
 
     dest->nodecount = 0;
     load_begin_internal(&load, dest);
 
     for (;;) {
-	if (leftnode != NULL && rightnode != NULL) {
-	    if (dest->compare(leftnode->key, rightnode->key) < 0)
-		goto copyleft;
-	    else
-		goto copyright;
-	} else if (leftnode != NULL) {
-	    goto copyleft;
-	} else if (rightnode != NULL) {
-	    goto copyright;
-	} else {
-	    assert (leftnode == NULL && rightnode == NULL);
-	    break;
-	}
+        if (leftnode != NULL && rightnode != NULL) {
+            if (dest->compare(leftnode->key, rightnode->key) < 0)
+                goto copyleft;
+            else
+                goto copyright;
+        } else if (leftnode != NULL) {
+            goto copyleft;
+        } else if (rightnode != NULL) {
+            goto copyright;
+        } else {
+            assert (leftnode == NULL && rightnode == NULL);
+            break;
+        }
 
     copyleft:
-	{
-	    dnode_t *next = dict_next(dest, leftnode);
-	    #ifndef NDEBUG
-	    leftnode->left = NULL;	/* suppress assertion in dict_load_next */
-	    #endif
-	    dict_load_next(&load, leftnode, leftnode->key);
-	    leftnode = next;
-	    continue;
-	}
-	
+        {
+            dnode_t *next = dict_next(dest, leftnode);
+            #ifndef NDEBUG
+            leftnode->left = NULL;      /* suppress assertion in dict_load_next */
+            #endif
+            dict_load_next(&load, leftnode, leftnode->key);
+            leftnode = next;
+            continue;
+        }
+
     copyright:
-	{
-	    dnode_t *next = dict_next(source, rightnode);
-	    #ifndef NDEBUG
-	    rightnode->left = NULL;
-	    #endif
-	    dict_load_next(&load, rightnode, rightnode->key);
-	    rightnode = next;
-	    continue;
-	}
+        {
+            dnode_t *next = dict_next(source, rightnode);
+            #ifndef NDEBUG
+            rightnode->left = NULL;
+            #endif
+            dict_load_next(&load, rightnode, rightnode->key);
+            rightnode = next;
+            continue;
+        }
     }
 
     dict_clear(source);
@@ -1251,25 +1251,25 @@ typedef char input_t[256];
 
 static int tokenize(char *string, ...)
 {
-    char **tokptr; 
+    char **tokptr;
     va_list arglist;
     int tokcount = 0;
 
     va_start(arglist, string);
     tokptr = va_arg(arglist, char **);
     while (tokptr) {
-	while (*string && isspace((unsigned char) *string))
-	    string++;
-	if (!*string)
-	    break;
-	*tokptr = string;
-	while (*string && !isspace((unsigned char) *string))
-	    string++;
-	tokptr = va_arg(arglist, char **);
-	tokcount++;
-	if (!*string)
-	    break;
-	*string++ = 0;
+        while (*string && isspace((unsigned char) *string))
+            string++;
+        if (!*string)
+            break;
+        *tokptr = string;
+        while (*string && !isspace((unsigned char) *string))
+            string++;
+        tokptr = va_arg(arglist, char **);
+        tokcount++;
+        if (!*string)
+            break;
+        *string++ = 0;
     }
     va_end(arglist);
 
@@ -1286,7 +1286,7 @@ static char *dupstring(char *str)
     int sz = strlen(str) + 1;
     char *new = malloc(sz);
     if (new)
-	memcpy(new, str, sz);
+        memcpy(new, str, sz);
     return new;
 }
 
@@ -1296,7 +1296,7 @@ static dnode_t *new_node(void *c)
     static int count;
 
     if (count < 5)
-	return few + count++;
+        return few + count++;
 
     return NULL;
 }
@@ -1315,58 +1315,58 @@ static void construct(dict_t *d)
     dnode_t *dn;
     char *tok1, *tok2, *val;
     const char *key;
-    char *help = 
-	"p                      turn prompt on\n"
-	"q                      finish construction\n"
-	"a <key> <val>          add new entry\n";
+    char *help =
+        "p                      turn prompt on\n"
+        "q                      finish construction\n"
+        "a <key> <val>          add new entry\n";
 
     if (!dict_isempty(d))
-	puts("warning: dictionary not empty!");
+        puts("warning: dictionary not empty!");
 
     dict_load_begin(&dl, d);
 
     while (!done) {
-	if (prompt)
-	    putchar('>');
-	fflush(stdout);
+        if (prompt)
+            putchar('>');
+        fflush(stdout);
 
-	if (!fgets(in, sizeof(input_t), stdin))
-	    break;
+        if (!fgets(in, sizeof(input_t), stdin))
+            break;
 
-	switch (in[0]) {
-	    case '?':
-		puts(help);
-		break;
-	    case 'p':
-		prompt = 1;
-		break;
-	    case 'q':
-		done = 1;
-		break;
-	    case 'a':
-		if (tokenize(in+1, &tok1, &tok2, (char **) 0) != 2) {
-		    puts("what?");
-		    break;
-		}
-		key = dupstring(tok1);
-		val = dupstring(tok2);
-		dn = dnode_create(val);
+        switch (in[0]) {
+            case '?':
+                puts(help);
+                break;
+            case 'p':
+                prompt = 1;
+                break;
+            case 'q':
+                done = 1;
+                break;
+            case 'a':
+                if (tokenize(in+1, &tok1, &tok2, (char **) 0) != 2) {
+                    puts("what?");
+                    break;
+                }
+                key = dupstring(tok1);
+                val = dupstring(tok2);
+                dn = dnode_create(val);
 
-		if (!key || !val || !dn) {
-		    puts("out of memory");
-		    free((void *) key);
-		    free(val);
-		    if (dn)
-			dnode_destroy(dn);
-		}
+                if (!key || !val || !dn) {
+                    puts("out of memory");
+                    free((void *) key);
+                    free(val);
+                    if (dn)
+                        dnode_destroy(dn);
+                }
 
-		dict_load_next(&dl, dn, key);
-		break;
-	    default:
-		putchar('?');
-		putchar('\n');
-		break;
-	}
+                dict_load_next(&dl, dn, key);
+                break;
+            default:
+                putchar('?');
+                putchar('\n');
+                break;
+        }
     }
 
     dict_load_end(&dl);
@@ -1383,171 +1383,171 @@ int main(void)
     const char *key;
 
     char *help =
-	"a <key> <val>          add value to dictionary\n"
-	"d <key>                delete value from dictionary\n"
-	"l <key>                lookup value in dictionary\n"
-	"( <key>                lookup lower bound\n"
-	") <key>                lookup upper bound\n"
-	"< <key>                lookup strict lower bound\n"
-	"> <key>                lookup strict upper bound\n"
-	"# <num>                switch to alternate dictionary (0-9)\n"
-	"j <num> <num>          merge two dictionaries\n"
-	"f                      free the whole dictionary\n"
-	"k                      allow duplicate keys\n"
-	"c                      show number of entries\n"
-	"t                      dump whole dictionary in sort order\n"
-	"m                      make dictionary out of sorted items\n"
-	"p                      turn prompt on\n"
-	"s                      switch to non-functioning allocator\n"
-	"q                      quit";
+        "a <key> <val>          add value to dictionary\n"
+        "d <key>                delete value from dictionary\n"
+        "l <key>                lookup value in dictionary\n"
+        "( <key>                lookup lower bound\n"
+        ") <key>                lookup upper bound\n"
+        "< <key>                lookup strict lower bound\n"
+        "> <key>                lookup strict upper bound\n"
+        "# <num>                switch to alternate dictionary (0-9)\n"
+        "j <num> <num>          merge two dictionaries\n"
+        "f                      free the whole dictionary\n"
+        "k                      allow duplicate keys\n"
+        "c                      show number of entries\n"
+        "t                      dump whole dictionary in sort order\n"
+        "m                      make dictionary out of sorted items\n"
+        "p                      turn prompt on\n"
+        "s                      switch to non-functioning allocator\n"
+        "q                      quit";
 
     for (i = 0; i < sizeof darray / sizeof *darray; i++)
-	dict_init(&darray[i], DICTCOUNT_T_MAX, comparef);
+        dict_init(&darray[i], DICTCOUNT_T_MAX, comparef);
 
     for (;;) {
-	if (prompt)
-	    putchar('>');
-	fflush(stdout);
+        if (prompt)
+            putchar('>');
+        fflush(stdout);
 
-	if (!fgets(in, sizeof(input_t), stdin))
-	    break;
+        if (!fgets(in, sizeof(input_t), stdin))
+            break;
 
-	switch(in[0]) {
-	    case '?':
-		puts(help);
-		break;
-	    case 'a':
-		if (tokenize(in+1, &tok1, &tok2, (char **) 0) != 2) {
-		    puts("what?");
-		    break;
-		}
-		key = dupstring(tok1);
-		val = dupstring(tok2);
+        switch(in[0]) {
+            case '?':
+                puts(help);
+                break;
+            case 'a':
+                if (tokenize(in+1, &tok1, &tok2, (char **) 0) != 2) {
+                    puts("what?");
+                    break;
+                }
+                key = dupstring(tok1);
+                val = dupstring(tok2);
 
-		if (!key || !val) {
-		    puts("out of memory");
-		    free((void *) key);
-		    free(val);
-		}
+                if (!key || !val) {
+                    puts("out of memory");
+                    free((void *) key);
+                    free(val);
+                }
 
-		if (!dict_alloc_insert(d, key, val)) {
-		    puts("dict_alloc_insert failed");
-		    free((void *) key);
-		    free(val);
-		    break;
-		}
-		break;
-	    case 'd':
-		if (tokenize(in+1, &tok1, (char **) 0) != 1) {
-		    puts("what?");
-		    break;
-		}
-		dn = dict_lookup(d, tok1);
-		if (!dn) {
-		    puts("dict_lookup failed");
-		    break;
-		}
-		val = dnode_get(dn);
-		key = dnode_getkey(dn);
-		dict_delete_free(d, dn);
+                if (!dict_alloc_insert(d, key, val)) {
+                    puts("dict_alloc_insert failed");
+                    free((void *) key);
+                    free(val);
+                    break;
+                }
+                break;
+            case 'd':
+                if (tokenize(in+1, &tok1, (char **) 0) != 1) {
+                    puts("what?");
+                    break;
+                }
+                dn = dict_lookup(d, tok1);
+                if (!dn) {
+                    puts("dict_lookup failed");
+                    break;
+                }
+                val = dnode_get(dn);
+                key = dnode_getkey(dn);
+                dict_delete_free(d, dn);
 
-		free(val);
-		free((void *) key);
-		break;
-	    case 'f':
-		dict_free(d);
-		break;
-	    case 'l':
-	    case '(':
-	    case ')':
-	    case '<':
-	    case '>':
-		if (tokenize(in+1, &tok1, (char **) 0) != 1) {
-		    puts("what?");
-		    break;
-		}
-		dn = 0;
-		switch (in[0]) {
-		case 'l':
-		    dn = dict_lookup(d, tok1);
-		    break;
-		case '(':
-		    dn = dict_lower_bound(d, tok1);
-		    break;
-		case ')':
-		    dn = dict_upper_bound(d, tok1);
-		    break;
-		case '<':
-		    dn = dict_strict_lower_bound(d, tok1);
-		    break;
-		case '>':
-		    dn = dict_strict_upper_bound(d, tok1);
-		    break;
-		}
-		if (!dn) {
-		    puts("lookup failed");
-		    break;
-		}
-		val = dnode_get(dn);
-		puts(val);
-		break;
-	    case 'm':
-		construct(d);
-		break;
-	    case 'k':
-		dict_allow_dupes(d);
-		break;
-	    case 'c':
-		printf("%lu\n", (unsigned long) dict_count(d));
-		break;
-	    case 't':
-		for (dn = dict_first(d); dn; dn = dict_next(d, dn)) {
-		    printf("%s\t%s\n", (char *) dnode_getkey(dn),
-			    (char *) dnode_get(dn));
-		}
-		break;
-	    case 'q':
-		exit(0);
-		break;
-	    case '\0':
-		break;
-	    case 'p':
-		prompt = 1;
-		break;
-	    case 's':
-		dict_set_allocator(d, new_node, del_node, NULL);
-		break;
-	    case '#':
-		if (tokenize(in+1, &tok1, (char **) 0) != 1) {
-		    puts("what?");
-		    break;
-		} else {
-		    int dictnum = atoi(tok1);
-		    if (dictnum < 0 || dictnum > 9) {
-			puts("invalid number");
-			break;
-		    }
-		    d = &darray[dictnum];
-		}
-		break;
-	    case 'j':
-		if (tokenize(in+1, &tok1, &tok2, (char **) 0) != 2) {
-		    puts("what?");
-		    break;
-		} else {
-		    int dict1 = atoi(tok1), dict2 = atoi(tok2);
-		    if (dict1 < 0 || dict1 > 9 || dict2 < 0 || dict2 > 9) {
-			puts("invalid number");
-			break;
-		    }
-		    dict_merge(&darray[dict1], &darray[dict2]);
-		}
-		break;
-	    default:
-		putchar('?');
-		putchar('\n');
-		break;
-	}
+                free(val);
+                free((void *) key);
+                break;
+            case 'f':
+                dict_free(d);
+                break;
+            case 'l':
+            case '(':
+            case ')':
+            case '<':
+            case '>':
+                if (tokenize(in+1, &tok1, (char **) 0) != 1) {
+                    puts("what?");
+                    break;
+                }
+                dn = 0;
+                switch (in[0]) {
+                case 'l':
+                    dn = dict_lookup(d, tok1);
+                    break;
+                case '(':
+                    dn = dict_lower_bound(d, tok1);
+                    break;
+                case ')':
+                    dn = dict_upper_bound(d, tok1);
+                    break;
+                case '<':
+                    dn = dict_strict_lower_bound(d, tok1);
+                    break;
+                case '>':
+                    dn = dict_strict_upper_bound(d, tok1);
+                    break;
+                }
+                if (!dn) {
+                    puts("lookup failed");
+                    break;
+                }
+                val = dnode_get(dn);
+                puts(val);
+                break;
+            case 'm':
+                construct(d);
+                break;
+            case 'k':
+                dict_allow_dupes(d);
+                break;
+            case 'c':
+                printf("%lu\n", (unsigned long) dict_count(d));
+                break;
+            case 't':
+                for (dn = dict_first(d); dn; dn = dict_next(d, dn)) {
+                    printf("%s\t%s\n", (char *) dnode_getkey(dn),
+                            (char *) dnode_get(dn));
+                }
+                break;
+            case 'q':
+                exit(0);
+                break;
+            case '\0':
+                break;
+            case 'p':
+                prompt = 1;
+                break;
+            case 's':
+                dict_set_allocator(d, new_node, del_node, NULL);
+                break;
+            case '#':
+                if (tokenize(in+1, &tok1, (char **) 0) != 1) {
+                    puts("what?");
+                    break;
+                } else {
+                    int dictnum = atoi(tok1);
+                    if (dictnum < 0 || dictnum > 9) {
+                        puts("invalid number");
+                        break;
+                    }
+                    d = &darray[dictnum];
+                }
+                break;
+            case 'j':
+                if (tokenize(in+1, &tok1, &tok2, (char **) 0) != 2) {
+                    puts("what?");
+                    break;
+                } else {
+                    int dict1 = atoi(tok1), dict2 = atoi(tok2);
+                    if (dict1 < 0 || dict1 > 9 || dict2 < 0 || dict2 > 9) {
+                        puts("invalid number");
+                        break;
+                    }
+                    dict_merge(&darray[dict1], &darray[dict2]);
+                }
+                break;
+            default:
+                putchar('?');
+                putchar('\n');
+                break;
+        }
     }
 
     return 0;
