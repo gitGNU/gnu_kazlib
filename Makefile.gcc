@@ -59,7 +59,9 @@ docs.idx: docs.ltx
 	latex docs.ltx
 
 clean:
-	-rm tags tlist tdict thash teh tsfx except.o docs.aux docs.log docs.dvi docs.toc docs.idx docs.ind docs.ilg
+	-rm tags tlist tdict thash teh tsfx list.o dict.o \
+	  hash.o sfx.o except.o docs.aux docs.log docs.dvi \
+	  docs.toc docs.idx docs.ind docs.ilg
 
 dep: .depend
 
