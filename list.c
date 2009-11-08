@@ -42,11 +42,11 @@
 #define nodecount list_nodecount
 #define maxcount list_maxcount
 
-#define list_nil(L)		(&(L)->nilnode)
-#define list_first_priv(L)	((L)->nilnode.next)
-#define list_last_priv(L)	((L)->nilnode.prev)
-#define lnode_next(N)		((N)->next)
-#define lnode_prev(N)		((N)->prev)
+#define list_nil(L)             (&(L)->nilnode)
+#define list_first_priv(L)      ((L)->nilnode.next)
+#define list_last_priv(L)       ((L)->nilnode.prev)
+#define lnode_next(N)           ((N)->next)
+#define lnode_prev(N)           ((N)->prev)
 
 /*
  * Initialize a list object supplied by the client such that it becomes a valid
@@ -75,11 +75,11 @@ list_t *list_create(listcount_t maxcount)
 {
     list_t *new = malloc(sizeof *new);
     if (new) {
-	assert (maxcount != 0);
-	new->nilnode.next = &new->nilnode;
-	new->nilnode.prev = &new->nilnode;
-	new->nodecount = 0;
-	new->maxcount = maxcount;
+        assert (maxcount != 0);
+        new->nilnode.next = &new->nilnode;
+        new->nilnode.prev = &new->nilnode;
+        new->nodecount = 0;
+        new->maxcount = maxcount;
     }
     return new;
 }
@@ -106,11 +106,11 @@ void list_destroy_nodes(list_t *list)
     lnode_t *lnode = list_first_priv(list), *nil = list_nil(list), *tmp;
 
     while (lnode != nil) {
-	tmp = lnode->next;
-	lnode->next = NULL;
-	lnode->prev = NULL;
-	lnode_destroy(lnode);
-	lnode = tmp;
+        tmp = lnode->next;
+        lnode->next = NULL;
+        lnode->prev = NULL;
+        lnode_destroy(lnode);
+        lnode = tmp;
     }
 
     list_init(list, list->maxcount);
@@ -126,11 +126,11 @@ void list_return_nodes(list_t *list, lnodepool_t *pool)
     lnode_t *lnode = list_first_priv(list), *tmp, *nil = list_nil(list);
 
     while (lnode != nil) {
-	tmp = lnode->next;
-	lnode->next = NULL;
-	lnode->prev = NULL;
-	lnode_return(pool, lnode);
-	lnode = tmp;
+        tmp = lnode->next;
+        lnode->next = NULL;
+        lnode->prev = NULL;
+        lnode_return(pool, lnode);
+        lnode = tmp;
     }
 
     list_init(list, list->maxcount);
@@ -209,17 +209,17 @@ lnode_t *list_delete(list_t *list, lnode_t *del)
  */
 
 void list_process(list_t *list, void *context,
-	void (* function)(list_t *list, lnode_t *lnode, void *context))
+        void (* function)(list_t *list, lnode_t *lnode, void *context))
 {
     lnode_t *node = list_first_priv(list), *next, *nil = list_nil(list);
 
     while (node != nil) {
-	/* check for callback function deleting	*/
-	/* the next node from under us		*/
-	assert (list_contains(list, node));
-	next = node->next;
-	function(list, node, context);
-	node = next;
+        /* check for callback function deleting */
+        /* the next node from under us          */
+        assert (list_contains(list, node));
+        next = node->next;
+        function(list, node, context);
+        node = next;
     }
 }
 
@@ -231,9 +231,9 @@ lnode_t *lnode_create(void *data)
 {
     lnode_t *new = malloc(sizeof *new);
     if (new) {
-	new->data = data;
-	new->next = NULL;
-	new->prev = NULL;
+        new->data = data;
+        new->next = NULL;
+        new->prev = NULL;
     }
     return new;
 }
@@ -276,10 +276,10 @@ lnodepool_t *lnode_pool_init(lnodepool_t *pool, lnode_t *nodes, listcount_t n)
     pool->fre = nodes;
     pool->size = n;
     for (i = 0; i < n - 1; i++) {
-	nodes[i].next = nodes + i + 1;
+        nodes[i].next = nodes + i + 1;
     }
     nodes[i].next = NULL;
-    nodes[i].prev = nodes;	/* to make sure node is marked ``on list'' */
+    nodes[i].prev = nodes;      /* to make sure node is marked ``on list'' */
     return pool;
 }
 
@@ -296,11 +296,11 @@ lnodepool_t *lnode_pool_create(listcount_t n)
 
     pool = malloc(sizeof *pool);
     if (!pool)
-	return NULL;
+        return NULL;
     nodes = malloc(n * sizeof *nodes);
     if (!nodes) {
-	free(pool);
-	return NULL;
+        free(pool);
+        return NULL;
     }
     lnode_pool_init(pool, nodes, n);
     return pool;
@@ -319,8 +319,8 @@ int lnode_pool_isfrom(lnodepool_t *pool, lnode_t *node)
        than for exact equality */
 
     for (i = 0; i < pool->size; i++) {
-	if (pool->pool + i == node)
-	    return 1;
+        if (pool->pool + i == node)
+            return 1;
     }
     return 0;
 }
@@ -344,10 +344,10 @@ lnode_t *lnode_borrow(lnodepool_t *pool, void *data)
 {
     lnode_t *new = pool->fre;
     if (new) {
-	pool->fre = new->next;
-	new->data = data;
-	new->next = NULL;
-	new->prev = NULL;
+        pool->fre = new->next;
+        new->data = data;
+        new->next = NULL;
+        new->prev = NULL;
     }
     return new;
 }
@@ -377,8 +377,8 @@ int list_contains(list_t *list, lnode_t *node)
     lnode_t *n, *nil = list_nil(list);
 
     for (n = list_first_priv(list); n != nil; n = lnode_next(n)) {
-	if (node == n)
-	    return 1;
+        if (node == n)
+            return 1;
     }
 
     return 0;
@@ -398,7 +398,7 @@ void list_extract(list_t *dest, list_t *source, lnode_t *first, lnode_t *last)
     assert (last == NULL || list_contains(source, last));
 
     if (first == NULL || last == NULL)
-	return;
+        return;
 
     /* adjust the destination list so that the slice is spliced out */
 
@@ -413,9 +413,9 @@ void list_extract(list_t *dest, list_t *source, lnode_t *first, lnode_t *last)
     dest->nilnode.prev = last;
 
     while (first != last) {
-	first = first->next;
-	assert (first != list_nil(source));	/* oops, last before first! */
-	moved++;
+        first = first->next;
+        assert (first != list_nil(source));     /* oops, last before first! */
+        moved++;
     }
 
     /* assert no overflows */
@@ -450,7 +450,7 @@ void list_transfer(list_t *dest, list_t *source, lnode_t *first)
     assert (first == NULL || list_contains(source, first));
 
     if (first == NULL)
-	return;
+        return;
 
     last = source->nilnode.prev;
 
@@ -463,8 +463,8 @@ void list_transfer(list_t *dest, list_t *source, lnode_t *first)
     dest->nilnode.prev = last;
 
     while (first != last) {
-	first = first->next;
-	moved++;
+        first = first->next;
+        moved++;
     }
 
     /* assert no overflows */
@@ -483,14 +483,14 @@ void list_transfer(list_t *dest, list_t *source, lnode_t *first)
 }
 
 void list_merge(list_t *dest, list_t *sour,
-	int compare (const void *, const void *))
+        int compare (const void *, const void *))
 {
     lnode_t *dn, *sn, *tn;
     lnode_t *d_nil = list_nil(dest), *s_nil = list_nil(sour);
 
     /* Nothing to do if source and destination list are the same. */
     if (dest == sour)
-	return;
+        return;
 
     /* overflow check */
     assert (list_count(sour) + list_count(dest) >= list_count(sour));
@@ -503,21 +503,21 @@ void list_merge(list_t *dest, list_t *sour,
     sn = list_first_priv(sour);
 
     while (dn != d_nil && sn != s_nil) {
-	if (compare(lnode_get(dn), lnode_get(sn)) >= 0) {
-	    tn = lnode_next(sn);
-	    list_delete(sour, sn);
-	    list_ins_before(dest, sn, dn);
-	    sn = tn;
-	} else {
-	    dn = lnode_next(dn);
-	}
+        if (compare(lnode_get(dn), lnode_get(sn)) >= 0) {
+            tn = lnode_next(sn);
+            list_delete(sour, sn);
+            list_ins_before(dest, sn, dn);
+            sn = tn;
+        } else {
+            dn = lnode_next(dn);
+        }
     }
 
     if (dn != d_nil)
-	return;
+        return;
 
     if (sn != s_nil)
-	list_transfer(dest, sour, sn);
+        list_transfer(dest, sour, sn);
 }
 
 void list_sort(list_t *list, int compare(const void *, const void *))
@@ -527,18 +527,18 @@ void list_sort(list_t *list, int compare(const void *, const void *))
     lnode_t *node;
 
     if (list_count(list) > 1) {
-	middle = list_count(list) / 2;
-	node = list_first_priv(list);
+        middle = list_count(list) / 2;
+        node = list_first_priv(list);
 
-	list_init(&extra, list_count(list) - middle);
+        list_init(&extra, list_count(list) - middle);
 
-	while (middle--)
-	    node = lnode_next(node);
+        while (middle--)
+            node = lnode_next(node);
 
-	list_transfer(&extra, list, node);
-	list_sort(list, compare);
-	list_sort(&extra, compare);
-	list_merge(list, &extra, compare);
+        list_transfer(&extra, list, node);
+        list_sort(list, compare);
+        list_sort(&extra, compare);
+        list_merge(list, &extra, compare);
     }
     assert (list_is_sorted(list, compare));
 }
@@ -548,8 +548,8 @@ lnode_t *list_find(list_t *list, const void *key, int compare(const void *, cons
     lnode_t *node;
 
     for (node = list_first_priv(list); node != list_nil(list); node = node->next) {
-	if (compare(lnode_get(node), key) == 0)
-	    return node;
+        if (compare(lnode_get(node), key) == 0)
+            return node;
     }
 
     return 0;
@@ -568,11 +568,11 @@ int list_is_sorted(list_t *list, int compare(const void *, const void *))
     node = list_first_priv(list);
 
     if (node != nil)
-	next = lnode_next(node);
+        next = lnode_next(node);
 
     for (; next != nil; node = next, next = lnode_next(next)) {
-	if (compare(lnode_get(node), lnode_get(next)) > 0)
-	    return 0;
+        if (compare(lnode_get(node), lnode_get(next)) > 0)
+            return 0;
     }
 
     return 1;
@@ -651,7 +651,7 @@ void list_prepend(list_t *list, lnode_t *node)
 lnode_t *list_first(list_t *list)
 {
     if (list->nilnode.next == &list->nilnode)
-	return NULL;
+        return NULL;
     return list->nilnode.next;
 }
 
@@ -662,7 +662,7 @@ lnode_t *list_first(list_t *list)
 lnode_t *list_last(list_t *list)
 {
     if (list->nilnode.prev == &list->nilnode)
-	return NULL;
+        return NULL;
     return list->nilnode.prev;
 }
 
@@ -722,7 +722,7 @@ lnode_t *list_next(list_t *list, lnode_t *lnode)
     assert (list_contains(list, lnode));
 
     if (lnode->next == list_nil(list))
-	return NULL;
+        return NULL;
     return lnode->next;
 }
 
@@ -735,7 +735,7 @@ lnode_t *list_prev(list_t *list, lnode_t *lnode)
     assert (list_contains(list, lnode));
 
     if (lnode->prev == list_nil(list))
-	return NULL;
+        return NULL;
     return lnode->prev;
 }
 
@@ -755,19 +755,19 @@ int list_verify(list_t *list)
     listcount_t count = list_count(list);
 
     if (node->prev != nil)
-	return 0;
+        return 0;
 
     if (count > list->maxcount)
-	return 0;
+        return 0;
 
     while (node != nil && count--) {
-	if (node->next->prev != node)
-	    return 0;
-	node = node->next;
+        if (node->next->prev != node)
+            return 0;
+        node = node->next;
     }
 
     if (count != 0 || node != nil)
-	return 0;
+        return 0;
 
     return 1;
 }
@@ -790,18 +790,18 @@ static int tokenize(char *string, ...)
     va_start(arglist, string);
     tokptr = va_arg(arglist, char **);
     while (tokptr) {
-	while (*string && isspace((unsigned char) *string))
-	    string++;
-	if (!*string)
-	    break;
-	*tokptr = string;
-	while (*string && !isspace((unsigned char) *string))
-	    string++;
-	tokptr = va_arg(arglist, char **);
-	tokcount++;
-	if (!*string)
-	    break;
-	*string++ = 0;
+        while (*string && isspace((unsigned char) *string))
+            string++;
+        if (!*string)
+            break;
+        *tokptr = string;
+        while (*string && !isspace((unsigned char) *string))
+            string++;
+        tokptr = va_arg(arglist, char **);
+        tokcount++;
+        if (!*string)
+            break;
+        *string++ = 0;
     }
     va_end(arglist);
 
@@ -818,7 +818,7 @@ static char *dupstring(char *str)
     int sz = strlen(str) + 1;
     char *new = malloc(sz);
     if (new)
-	memcpy(new, str, sz);
+        memcpy(new, str, sz);
     return new;
 }
 
@@ -831,100 +831,100 @@ int main(void)
     int prompt = 0;
 
     char *help =
-	"a <val>                append value to list\n"
-	"d <val>                delete value from list\n"
-	"l <val>                lookup value in list\n"
-	"s                      sort list\n"
-	"c                      show number of entries\n"
-	"t                      dump whole list\n"
-	"p                      turn prompt on\n"
-	"q                      quit";
+        "a <val>                append value to list\n"
+        "d <val>                delete value from list\n"
+        "l <val>                lookup value in list\n"
+        "s                      sort list\n"
+        "c                      show number of entries\n"
+        "t                      dump whole list\n"
+        "p                      turn prompt on\n"
+        "q                      quit";
 
     if (!l)
-	puts("list_create failed");
+        puts("list_create failed");
 
     for (;;) {
-	if (prompt)
-	    putchar('>');
-	fflush(stdout);
+        if (prompt)
+            putchar('>');
+        fflush(stdout);
 
-	if (!fgets(in, sizeof(input_t), stdin))
-	    break;
+        if (!fgets(in, sizeof(input_t), stdin))
+            break;
 
-	switch(in[0]) {
-	    case '?':
-		puts(help);
-		break;
-	    case 'a':
-		if (tokenize(in+1, &tok1, (char **) 0) != 1) {
-		    puts("what?");
-		    break;
-		}
-		val = dupstring(tok1);
-		ln = lnode_create(val);
+        switch(in[0]) {
+            case '?':
+                puts(help);
+                break;
+            case 'a':
+                if (tokenize(in+1, &tok1, (char **) 0) != 1) {
+                    puts("what?");
+                    break;
+                }
+                val = dupstring(tok1);
+                ln = lnode_create(val);
 
-		if (!val || !ln) {
-		    puts("allocation failure");
-		    if (ln)
-			lnode_destroy(ln);
-		    free(val);
-		    break;
-		}
+                if (!val || !ln) {
+                    puts("allocation failure");
+                    if (ln)
+                        lnode_destroy(ln);
+                    free(val);
+                    break;
+                }
 
-		list_append(l, ln);
-		break;
-	    case 'd':
-		if (tokenize(in+1, &tok1, (char **) 0) != 1) {
-		    puts("what?");
-		    break;
-		}
-		ln = list_find(l, tok1, comparef);
-		if (!ln) {
-		    puts("list_find failed");
-		    break;
-		}
-		list_delete(l, ln);
-		val = lnode_get(ln);
-		lnode_destroy(ln);
-		free(val);
-		break;
-	    case 'l':
-		if (tokenize(in+1, &tok1, (char **) 0) != 1) {
-		    puts("what?");
-		    break;
-		}
-		ln = list_find(l, tok1, comparef);
-		if (!ln)
-		    puts("list_find failed");
-		else
-		    puts("found");
-		break;
-	    case 's':
-		list_sort(l, comparef);
-		break;
-	    case 'c':
-		printf("%lu\n", (unsigned long) list_count(l));
-		break;
-	    case 't':
-		for (ln = list_first(l); ln != 0; ln = list_next(l, ln))
-		    puts(lnode_get(ln));
-		break;
-	    case 'q':
-		exit(0);
-		break;
-	    case '\0':
-		break;
-	    case 'p':
-		prompt = 1;
-		break;
-	    default:
-		putchar('?');
-		putchar('\n');
-		break;
-	}
+                list_append(l, ln);
+                break;
+            case 'd':
+                if (tokenize(in+1, &tok1, (char **) 0) != 1) {
+                    puts("what?");
+                    break;
+                }
+                ln = list_find(l, tok1, comparef);
+                if (!ln) {
+                    puts("list_find failed");
+                    break;
+                }
+                list_delete(l, ln);
+                val = lnode_get(ln);
+                lnode_destroy(ln);
+                free(val);
+                break;
+            case 'l':
+                if (tokenize(in+1, &tok1, (char **) 0) != 1) {
+                    puts("what?");
+                    break;
+                }
+                ln = list_find(l, tok1, comparef);
+                if (!ln)
+                    puts("list_find failed");
+                else
+                    puts("found");
+                break;
+            case 's':
+                list_sort(l, comparef);
+                break;
+            case 'c':
+                printf("%lu\n", (unsigned long) list_count(l));
+                break;
+            case 't':
+                for (ln = list_first(l); ln != 0; ln = list_next(l, ln))
+                    puts(lnode_get(ln));
+                break;
+            case 'q':
+                exit(0);
+                break;
+            case '\0':
+                break;
+            case 'p':
+                prompt = 1;
+                break;
+            default:
+                putchar('?');
+                putchar('\n');
+                break;
+        }
     }
 
     return 0;
 }
 
-#endif	/* defined TEST_MAIN */
+#endif  /* defined TEST_MAIN */

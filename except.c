@@ -31,7 +31,7 @@
 #include <limits.h>
 #include "except.h"
 
-#define XCEPT_BUFFER_SIZE	1024
+#define XCEPT_BUFFER_SIZE       1024
 
 #define group except_group
 #define code except_code
@@ -95,23 +95,23 @@ int except_init(void)
     assert (init_counter < INT_MAX);
 
     if (init_counter++ == 0) {
-	int top_ok = (pthread_key_create(&top_key, 0) == 0);
-	int uh_ok = (pthread_key_create(&uh_key, 0) == 0);
-	int alloc_ok = (pthread_key_create(&alloc_key, 0) == 0);
-	int dealloc_ok = (pthread_key_create(&dealloc_key, 0) == 0);
+        int top_ok = (pthread_key_create(&top_key, 0) == 0);
+        int uh_ok = (pthread_key_create(&uh_key, 0) == 0);
+        int alloc_ok = (pthread_key_create(&alloc_key, 0) == 0);
+        int dealloc_ok = (pthread_key_create(&dealloc_key, 0) == 0);
 
-	if (!top_ok || !uh_ok || !alloc_ok || !dealloc_ok) {
-	    retval = 0;
-	    init_counter = 0;
-	    if (top_ok)
-		pthread_key_delete(top_key);
-	    if (uh_ok)
-		pthread_key_delete(uh_key);
-	    if (alloc_ok)
-		pthread_key_delete(alloc_key);
-	    if (dealloc_ok)
-		pthread_key_delete(dealloc_key);
-	}
+        if (!top_ok || !uh_ok || !alloc_ok || !dealloc_ok) {
+            retval = 0;
+            init_counter = 0;
+            if (top_ok)
+                pthread_key_delete(top_key);
+            if (uh_ok)
+                pthread_key_delete(uh_key);
+            if (alloc_ok)
+                pthread_key_delete(alloc_key);
+            if (dealloc_ok)
+                pthread_key_delete(dealloc_key);
+        }
     }
 
     pthread_mutex_unlock(&init_mtx);
@@ -126,16 +126,16 @@ void except_deinit(void)
     assert (init_counter > 0);
 
     if (--init_counter == 0) {
-	pthread_key_delete(top_key);
-	pthread_key_delete(uh_key);
-	pthread_key_delete(alloc_key);
-	pthread_key_delete(dealloc_key);
+        pthread_key_delete(top_key);
+        pthread_key_delete(uh_key);
+        pthread_key_delete(alloc_key);
+        pthread_key_delete(dealloc_key);
     }
 
     pthread_mutex_unlock(&init_mtx);
 }
 
-#else	/* no thread support */
+#else   /* no thread support */
 
 static int init_counter;
 static void unhandled_catcher(except_t *);
@@ -184,35 +184,35 @@ static void do_throw(except_t *except)
     assert (except->id.group != 0 && except->id.code != 0);
 
     for (top = get_top(); top != 0; top = top->down) {
-	if (top->type == XCEPT_CLEANUP) {
-	    top->info.cleanup->func(top->info.cleanup->context);
-	} else {
-	    struct except_catch *catcher = top->info.catcher;
-	    const except_id_t *pi = catcher->id;
-	    size_t i;
+        if (top->type == XCEPT_CLEANUP) {
+            top->info.cleanup->func(top->info.cleanup->context);
+        } else {
+            struct except_catch *catcher = top->info.catcher;
+            const except_id_t *pi = catcher->id;
+            size_t i;
 
-	    assert (top->type == XCEPT_CATCHER);
-	    except_free(catcher->obj.dyndata);
+            assert (top->type == XCEPT_CATCHER);
+            except_free(catcher->obj.dyndata);
 
-	    for (i = 0; i < catcher->size; pi++, i++) {
-		if (match(&except->id, pi)) {
-		    catcher->obj = *except;
-		    set_top(top);
-		    longjmp(catcher->jmp, 1);
-		}
-	    }
-	}
+            for (i = 0; i < catcher->size; pi++, i++) {
+                if (match(&except->id, pi)) {
+                    catcher->obj = *except;
+                    set_top(top);
+                    longjmp(catcher->jmp, 1);
+                }
+            }
+        }
     }
 
     set_top(top);
-    get_catcher()(except);	/* unhandled exception */
+    get_catcher()(except);      /* unhandled exception */
     abort();
 }
 
 static void unhandled_catcher(except_t *except)
 {
     fprintf(stderr, "Unhandled exception (\"%s\", group=%ld, code=%ld)\n",
-	    except->message, except->id.group, except->id.code);
+            except->message, except->id.group, except->id.code);
     abort();
 }
 
@@ -223,7 +223,7 @@ static void stack_push(struct except_stacknode *node)
 }
 
 void except_setup_clean(struct except_stacknode *esn,
-	struct except_cleanup *ecl, void (*cleanf)(void *), void *context)
+        struct except_cleanup *ecl, void (*cleanf)(void *), void *context)
 {
     esn->type = XCEPT_CLEANUP;
     ecl->func = cleanf;
@@ -233,7 +233,7 @@ void except_setup_clean(struct except_stacknode *esn,
 }
 
 void except_setup_try(struct except_stacknode *esn,
-	struct except_catch *ech, const except_id_t id[], size_t size)
+        struct except_catch *ech, const except_id_t id[], size_t size)
 {
    ech->id = id;
    ech->size = size;
@@ -345,7 +345,7 @@ void *except_alloc(size_t size)
     void *ptr = get_alloc()(size);
 
     if (ptr == 0)
-	except_throw(XCEPT_BAD_ALLOC, 0, "out of memory");
+        except_throw(XCEPT_BAD_ALLOC, 0, "out of memory");
     return ptr;
 }
 
@@ -371,7 +371,7 @@ static void bottom_level(void)
     fgets(buf, sizeof buf, stdin);
 
     if (buf[0] >= 0 && toupper(buf[0]) == 'Y')
-	except_throw(1, 1, "nasty exception");
+        except_throw(1, 1, "nasty exception");
 }
 
 static void top_level(void)
@@ -393,21 +393,21 @@ int main(int argc, char **argv)
     /* outer */
     except_try_push(catch, 2, &ex);
     if (!ex) {
-	/* inner */
-	except_try_push(catch, 2, &ex);
-	if (!ex) {
-	    top_level();
-	} else {
-	    /* inner catch */
-	    printf("caught exception (inner): \"%s\", s=%ld, c=%ld\n",
-		    except_message(ex), except_group(ex), except_code(ex));
-	    except_rethrow(ex);
-	}
-	except_try_pop();
+        /* inner */
+        except_try_push(catch, 2, &ex);
+        if (!ex) {
+            top_level();
+        } else {
+            /* inner catch */
+            printf("caught exception (inner): \"%s\", s=%ld, c=%ld\n",
+                    except_message(ex), except_group(ex), except_code(ex));
+            except_rethrow(ex);
+        }
+        except_try_pop();
     } else {
-	/* outer catch */
-	printf("caught exception (outer): \"%s\", s=%ld, c=%ld\n",
-		except_message(ex), except_group(ex), except_code(ex));
+        /* outer catch */
+        printf("caught exception (outer): \"%s\", s=%ld, c=%ld\n",
+                except_message(ex), except_group(ex), except_code(ex));
     }
     except_try_pop();
     except_throw(99, 99, "exception in main");
