@@ -534,6 +534,54 @@ dnode_t *dict_upper_bound(dict_t *dict, const void *key)
 }
 
 /*
+ * Look for the node corresponding to the lowest key that
+ * is greater than the given key.
+ */
+dnode_t *dict_strict_lower_bound(dict_t *dict, const void *key)
+{
+    dnode_t *root = dict_root(dict);
+    dnode_t *nil = dict_nil(dict);
+    dnode_t *tentative = 0;
+
+    while (root != nil) {
+	int result = dict->compare(key, root->key);
+
+	if (result >= 0) {
+	    root = root->right;
+	} else {
+	    tentative = root;
+	    root = root->left;
+	} 
+    }
+
+    return tentative;
+}
+
+/*
+ * Look for the node corresponding to the grestest key that
+ * is lower than the given key.
+ */
+dnode_t *dict_strict_upper_bound(dict_t *dict, const void *key)
+{
+    dnode_t *root = dict_root(dict);
+    dnode_t *nil = dict_nil(dict);
+    dnode_t *tentative = 0;
+
+    while (root != nil) {
+	int result = dict->compare(key, root->key);
+
+	if (result <= 0) {
+	    root = root->left;
+	} else {
+	    tentative = root;
+	    root = root->right;
+	} 
+    }
+
+    return tentative;
+}
+
+/*
  * Insert a node into the dictionary. The node should have been
  * initialized with a data field. All other fields are ignored.
  * The behavior is undefined if the user attempts to insert into
@@ -1340,6 +1388,8 @@ int main(void)
 	"l <key>                lookup value in dictionary\n"
 	"( <key>                lookup lower bound\n"
 	") <key>                lookup upper bound\n"
+	"< <key>                lookup strict lower bound\n"
+	"> <key>                lookup strict upper bound\n"
 	"# <num>                switch to alternate dictionary (0-9)\n"
 	"j <num> <num>          merge two dictionaries\n"
 	"f                      free the whole dictionary\n"
@@ -1410,6 +1460,8 @@ int main(void)
 	    case 'l':
 	    case '(':
 	    case ')':
+	    case '<':
+	    case '>':
 		if (tokenize(in+1, &tok1, (char **) 0) != 1) {
 		    puts("what?");
 		    break;
@@ -1424,6 +1476,12 @@ int main(void)
 		    break;
 		case ')':
 		    dn = dict_upper_bound(d, tok1);
+		    break;
+		case '<':
+		    dn = dict_strict_lower_bound(d, tok1);
+		    break;
+		case '>':
+		    dn = dict_strict_upper_bound(d, tok1);
 		    break;
 		}
 		if (!dn) {

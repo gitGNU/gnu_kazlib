@@ -2377,23 +2377,24 @@ In addition, the following structure tags may be defined:\index{Dict!tag names}
 The following external function names shall be declared:
 \index{Dict!function names}\index{functions!defined by Dict}
 \begin{verbatim}
-    dict_create                 dict_count                     
-    dict_set_allocator          dict_isempty                   
-    dict_destroy                dict_isfull                    
-    dict_free_nodes             dict_contains                  
-    dict_init                   dict_allow_dupes               
-    dict_verify                 dnode_is_in_a_dict             
-    dict_lookup                 dnode_create                   
-    dict_lower_bound            dnode_init                     
-    dict_upper_bound            dnode_destroy                  
-    dict_insert                 dnode_get                      
-    dict_delete                 dnode_getkey                   
-    dict_alloc_insert           dnode_put                      
-    dict_delete_free            dict_process                   
-    dict_first                  dict_load_begin
-    dict_last                   dict_load_next
-    dict_next                   dict_load_end 
-    dict_prev                   dict_free
+    dict_create                 dict_prev
+    dict_set_allocator          dict_count
+    dict_destroy                dict_isempty                   
+    dict_free_nodes             dict_isfull                    
+    dict_init                   dict_contains                  
+    dict_verify                 dict_allow_dupes               
+    dict_lookup                 dnode_is_in_a_dict             
+    dict_lower_bound            dnode_create                   
+    dict_upper_bound            dnode_init                     
+    dict_strict_lower_bound     dnode_destroy                  
+    dict_strict_upper_bound     dnode_get                      
+    dict_insert                 dnode_getkey                   
+    dict_delete                 dnode_put                      
+    dict_alloc_insert           dict_process                   
+    dict_delete_free            dict_load_begin
+    dict_first                  dict_load_next
+    dict_last                   dict_load_end 
+    dict_next                   dict_free
 \end{verbatim}
 The following preprocessor symbols shall be
 defined: \index{Dict!macro names}\index{macros!defined by Dict}
@@ -2673,16 +2674,11 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
 
     \description
 
-    The \verb|dict_lower_bound| function searches the dictionary in a manner
-    similar to \verb|dict_lookup|.
-    
-    If the given key exists in the dictionary, the behavior is exactly the same
-    as \verb|dict_lookup|.
-    
-    However, if the key is not found, then the node which has the smallest key
-    that is greater than the search key is returned. If no such key exists
-    (because the search key is higher than any other key in the dictionary
-    or the dictionary is empty) then a null pointer is returned.
+    The \verb|dict_lower_bound| function searches the dictionary using
+    the search key as a lower bound. If the dictionary contains keys which
+    are equal to or greater than this key, then the node corresponding
+    to the lowest key among these is returned. Otherwise, null
+    is returned.
 
     \example
     Suppose that pointer \verb|d| refers to a dictionary whose registered
@@ -2720,19 +2716,11 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
 
     \description
 
-    The \verb|dict_upper_bound| function searches the dictionary in a manner
-    similar to \verb|dict_lookup|.
-    
-    If the given key exists in the dictionary, the behavior is exactly the same
-    as \verb|dict_lookup| with one difference: 
-    If the dictionary contains more than one key which matches the search
-    key, then the last key in the sequence of duplicates is returned,
-    rather than the first.
-    
-    However, if the key is not found, then the node which has the greatest key
-    that is lower than the search key is returned. If no such key exists
-    (because the search key is lower than any other key in the dictionary
-    or the dictionary is empty) then a null pointer is returned.
+    The \verb|dict_upper_bound| function searches the dictionary using
+    the search key as an upper bound. If the dictionary contains keys which
+    are equal to or lower than this key, then the node corresponding
+    to the highest key among these is returned. Otherwise, null
+    is returned.
   
     \example
     The following idiom can be used to iterate over a sequence of duplicate
@@ -2777,6 +2765,38 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
     contains one or more matching keys, than \verb|end| points to the first
     non-matching node, or is null if there is no such node.  Thus the loop
     performs correctly in all circumstances.
+
+\subsubsection{The {\tt dict_strict_lower_bound} function}
+
+    \indexfunc{dict_strict_lower_bound}
+
+    \synopsis
+    \begin{verbatim}
+    dnode_t *dict_strict_lower_bound(dict_t *, const void *);\end{verbatim}
+
+    \description
+
+    The \verb|dict_strict_lower_bound| function considers the search key
+	to be a strict lower bound. If the dictionary contains keys which
+	are greater than the lower bound, then this function returns the
+	node corresponding to the lowest key from among these. Otherwise it returns
+	null.
+
+\subsubsection{The {\tt dict_strict_upper_bound} function}
+
+    \indexfunc{dict_strict_upper_bound}
+
+    \synopsis
+    \begin{verbatim}
+    dnode_t *dict_strict_upper_bound(dict_t *, const void *);\end{verbatim}
+
+    \description
+
+    The \verb|dict_strict_upper_bound| function considers the search key
+	to be a strict upper bound. If the dictionary contains keys which
+	are lower than the lower bound, then this function returns the
+	node corresponding to the highest key from among these. Otherwise it
+	returns null.
 
 \subsubsection{The {\tt dict_insert} function}
 

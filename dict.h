@@ -104,6 +104,8 @@ extern int dict_similar(const dict_t *, const dict_t *);
 extern dnode_t *dict_lookup(dict_t *, const void *);
 extern dnode_t *dict_lower_bound(dict_t *, const void *);
 extern dnode_t *dict_upper_bound(dict_t *, const void *);
+extern dnode_t *dict_strict_lower_bound(dict_t *, const void *);
+extern dnode_t *dict_strict_upper_bound(dict_t *, const void *);
 extern void dict_insert(dict_t *, dnode_t *, const void *);
 extern dnode_t *dict_delete(dict_t *, dnode_t *);
 extern int dict_alloc_insert(dict_t *, const void *, void *);
