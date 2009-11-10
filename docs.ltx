@@ -3601,6 +3601,12 @@ explicitly call initialization functions like \verb|dnode_init| and
     However, the \verb|dict| template requires a member function, so a wrapper
     is required.
 
+    This comparison function \verb|string_compare| could be omitted. In that
+    case, the program works just as before, but the strings are compared with
+    the relational operators \verb|<| and \verb|==|, which is less efficient
+    because if \verb|<| yields false, then \verb|==| must still be tried,
+    whereas the compare function distinguishes all the cases in one operation.
+
     \begin{verbatim}
     #include <string>
     #include <iostream>
@@ -3728,7 +3734,6 @@ explicitly call initialization functions like \verb|dnode_init| and
 
     \label{section:kazlib_dict_bdbk}
 
-
     \indexcppclass{kazlib}{dict_bdbk}
 
     \synopsis
@@ -3755,6 +3760,55 @@ explicitly call initialization functions like \verb|dnode_init| and
     parameters \verb|DNODE_OFFSET| and \verb|KEY_OFFSET|.
     Also note that the \verb|COMP| function takes references to \verb|ITEM|
     rather than to a distinct \verb|KEY| type.
+
+    \example
+    The following program reads lines from standard input, and
+    sorts them lexicographically, according to the order imposed
+    by the \verb|<| operator over the type \verb|string|. The original
+    line number followed by a colon and space is prefixed to each line.
+    Note that the storage for the lines is not freed. The dictionary
+    object \verb|dict| does not manage the storage for the items,
+    and lacks a destructor.
+
+    The simplicity of using \verb|dict_bdbk| is evident in this example. The
+    item class \verb|line| simply inherits from dnode and string, and the
+    corresponding dictionary is made with only two template parameters:
+    \verb|line| to specify the type, and \verb|true| to allow duplicates.
+
+    \begin{verbatim}
+    #include <string>
+    #include <iostream>
+    #include "dict.h"
+
+    using std::string;
+    using std::cout;
+    using std::cin;
+    using std::endl;
+    using kazlib::dnode;
+    using kazlib::dict_bdbk;
+
+    class line : public dnode, public string {
+    public:
+      int lineno;
+      line(const string &s, int l) : string(s), lineno(l) { }
+    };
+
+    int main()
+    {
+      dict_bdbk<line, true> dict;
+      string s;
+      int num = 1;
+
+      while (getline(cin, s)) {
+        line *l = new line(s, num++);
+        dict.insert(l);
+      }
+
+      for (line *l = dict.first(); l != 0; l = dict.next(l))
+        cout << l->lineno << ": " << *l << endl;
+
+      return 0;
+    }\end{verbatim}
 
 \subsubsection{The {\tt kazlib::dict_mdbk} class}
 
