@@ -3641,8 +3641,8 @@ explicitly call initialization functions like \verb|dnode_init| and
 
     int main()
     {
-      person p1(1, "John", "Smith");
-      person p2(2, "Mary", "Brown");
+      person p1(1, "Mary", "Smith");
+      person p2(2, "John", "Smith");
       person p3(3, "Daisuke", "Takayama");
       person p4(4, "Zheng", "Shui-Yun");
       person p5(5, "Jaswinder", "Bhatta");
@@ -3652,10 +3652,10 @@ explicitly call initialization functions like \verb|dnode_init| and
            &person::id_dn, &person::id> by_id;
 
       dict<person, string, &person::first_name_dn, 
-           &person::first_name> by_first_name;
+           &person::first_name, true> by_first_name;
 
       dict<person, string, &person::last_name_dn, 
-           &person::last_name> by_last_name;
+           &person::last_name, true> by_last_name;
 
       by_id.insert(p1);
       by_first_name.insert(p1);
@@ -3703,25 +3703,25 @@ explicitly call initialization functions like \verb|dnode_init| and
     The output produced by the example is:
     \begin{verbatim}
     person records ordered by id:
-    1: John Smith
-    2: Mary Brown
+    1: Mary Smith
+    2: John Smith
     3: Daisuke Takayama
     4: Zheng Shui-Yun
     5: Jaswinder Bhatta
     6: Jarek Kozlowski
     person records ordered by last name:
     5: Jaswinder Bhatta
-    2: Mary Brown
     6: Jarek Kozlowski
     4: Zheng Shui-Yun
-    1: John Smith
+    1: Mary Smith
+    2: John Smith
     3: Daisuke Takayama
     person records ordered by first name:
     3: Daisuke Takayama
     6: Jarek Kozlowski
     5: Jaswinder Bhatta
-    1: John Smith
-    2: Mary Brown
+    2: John Smith
+    1: Mary Smith
     4: Zheng Shui-Yun\end{verbatim}
 
 \subsubsection{The {\tt kazlib::dict_bdbk} class}
