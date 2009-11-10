@@ -1,4 +1,3 @@
-% Copyright 2009
 % Kaz Kylheku <kkylheku@gmail.com>
 % Vancouver, Canada
 % All rights reserved.
@@ -50,7 +49,7 @@
     {1.0ex}
     {\normalsize\bfseries}}
 \makeatother
-\title{Kazlib---Reusable Components\\for C Programming}
+\title{Kazlib---Reusable Components\\for C and C++ Programming}
 \author{Kaz Kylheku}
 \date{Release 1.20\\July 24, 2001}
 \makeindex
@@ -61,8 +60,20 @@
 \def\indextype#1{\index{#1@{\tt #1} type}}
 \def\indexmacro#1{\index{#1@{\tt #1} macro}}
 \def\indexobject#1{\index{#1@{\tt #1} object}}
-\def\indexfunc#1{\index{#1@{\tt #1} function}}
+\def\indexfunc#1{\index{#1@{\tt #1} function}
+                 \index{functions!#1@{\tt #1}}}
 \def\indexenum#1{\index{#1@{\tt #1} enum constant}}
+\def\indexcppns#1{\index{#1@{\tt #1} C"+"+ namespace}}
+\def\indexcppclass#1#2{\index{#1@{\tt #1} C"+"+ namespace!#2@{\tt #2} class}
+                       \index{#2@{\tt #2} class}}
+\def\indexcppctor#1#2{\index{#1@{\tt #1}
+                             C"+"+ namespace!#2@{\tt #2}
+                                             class!#2@{\tt #2::#2} constructor}
+                             \index{#2@{\tt #2::#2} constructor}}
+\def\indexcppfunc#1#2#3{\index{#1@{\tt #1}
+                               C"+"+ namespace!#2@{\tt #2}
+                                               class!#3@{\tt #2::#3} function}
+                        \index{#3@{\tt #2::#3} function}}
 \def\synopsis{\paragraph*{Synopsis}}
 \def\constraints{\paragraph*{Constraints}}
 \def\description{\paragraph*{Description}}
@@ -206,7 +217,7 @@ execution of a program which violates a constraint.
 \index{constraint}
 \defsubsection{comparison function}: A function which accepts two arguments
 \index{comparison function}
-of type \verb|const void *| and returns a value of type int based on
+and returns a value of type int based on
 a ranking comparison of these arguments, and which satisfies the following
 additional semantic properties. If the two arguments are deemed to be equal, the
 function must return zero. If the first argument is determined to have a
@@ -263,6 +274,11 @@ mechanism is used for all declarations when they are included into a C++
 translation unit, or otherwise provide compatibility with C++.\footnote{The
 intent is that the Kazlib implementation could, in principle, provide
 a separate set of headers for use with each language.}
+
+Furthermore, Kazlib supports C++ programming in particular. Certain sections of
+Kazlib headers, enabled by preprocessing directives when the \verb|__cplusplus|
+preprocessor symbol is present, provide definitions in the C++ language of
+class templates and other kinds of entities.
 
 In programming environments that support the programming mechanism of multiple
 threads of execution an implementation of Kazlib may be designated as {\it
@@ -2396,6 +2412,17 @@ The following external function names shall be declared:
     dict_last                   dict_load_end
     dict_next                   dict_free
 \end{verbatim}
+The following class or template class names shall be declared
+if the header is included in a C++ implementation. The names
+are all placed within a namespace called \verb|kazlib|:
+\begin{verbatim}
+    kazlib::dnode               kazlib::dict_mdbk
+    kazlib::dict_base           kazlib::dict_bdmk
+    kazlib::dict                kazlib::dict_mdmk
+    kazlib::dict_bdbk
+\end{verbatim}
+The \verb|kazlib| namespace is reserved.\indexcppns{kazlib}
+
 The following preprocessor symbols shall be
 defined: \index{Dict!macro names}\index{macros!defined by Dict}
 \indexmacro{DICTCOUNT_T_MAX}
@@ -2739,7 +2766,7 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
     if (end != 0)
         end = dict_next(d, end);
     else
-        end = start;	/* start == dict_first(d) in this case */
+        end = start;    /* start == dict_first(d) in this case */
 
     for (n = start; n != end; n = dict_next(d, n)) {
         /* n points to duplicate keys in turn */
@@ -2749,15 +2776,15 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
     following conditions is true:
     \begin{itemize}
     \item The key was found in the dictionary; \verb|start| points to the
-	first duplicate node and \verb|end| points to the last.
+        first duplicate node and \verb|end| points to the last.
     \item The dictionary has only higher keys than the search key; \verb|start|
-	points to the first node in the dictionary and \verb|end| is null.
+        points to the first node in the dictionary and \verb|end| is null.
     \item The dictionary has only lower keys than the search key; \verb|end|
-	points to the last node in the dictionary, and \verb|start| is null.
+        points to the last node in the dictionary, and \verb|start| is null.
     \item The dictionary has both lower and higher keys; \verb|end| and \verb|start|
-	point to two consecutive nodes, respectively, such that the node
-	pointed at by \verb|end| has a lower key than the search key and
-	the node pointed at by \verb|start| has a higher key.
+        point to two consecutive nodes, respectively, such that the node
+        pointed at by \verb|end| has a lower key than the search key and
+        the node pointed at by \verb|start| has a higher key.
     \item The dictionary is empty; \verb|start| and \verb|end| are null.
     \end{itemize}
     The if statement ensures that if the dictionary contains no matching
@@ -2777,10 +2804,10 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
     \description
 
     The \verb|dict_strict_lower_bound| function considers the search key
-	to be a strict lower bound. If the dictionary contains keys which
-	are greater than the lower bound, then this function returns the
-	node corresponding to the lowest key from among these. Otherwise it returns
-	null.
+        to be a strict lower bound. If the dictionary contains keys which
+        are greater than the lower bound, then this function returns the
+        node corresponding to the lowest key from among these. Otherwise it returns
+        null.
 
 \subsubsection{The {\tt dict_strict_upper_bound} function}
 
@@ -2793,10 +2820,10 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
     \description
 
     The \verb|dict_strict_upper_bound| function considers the search key
-	to be a strict upper bound. If the dictionary contains keys which
-	are lower than the lower bound, then this function returns the
-	node corresponding to the highest key from among these. Otherwise it
-	returns null.
+        to be a strict upper bound. If the dictionary contains keys which
+        are lower than the lower bound, then this function returns the
+        node corresponding to the highest key from among these. Otherwise it
+        returns null.
 
 \subsubsection{The {\tt dict_insert} function}
 
@@ -3280,7 +3307,536 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
     a dictionary from a ordered sequence.  It breaks the binding between
     the \verb|dict_load_t| context object and the dictionary.
 
+\subsection{C++ Dictionary Utilities}
+
+The C++ Dictionary Utilities included in the \verb|dict.h| header allow the
+Dictionary module to be used conveniently in C++
+programs.\footnote{Rationale: The C++ language already provides container
+templates, of which the {\tt std::map} and {\tt std::set} most closely resemble
+the Dictionary module.  In fact, popular implementations of these modules are
+based on a very similar data structure to that used in the reference
+implementation of Dictionary.  However, these standard containers encapsulate
+the data structure nodes, thereby invoking the overhead of memory management on
+insert and delete.  User-defined objects and nodes can be combined when copying semantics are used, for instance {\tt std::set<user_class>} rather than
+{\tt std::set<user_class *>}. This is an incredibly bad idea for anything
+other than uncomplictated types like {\tt std::string} or {\tt int}, because
+now instances of {\tt user_class} are not actually inserted into the container,
+but rather copies of them, and so the programmer now has to provide the
+semantics of object copying, as well as the semantics for considering an object
+to be equivalent to a copy.  When using these standard containers, the
+programmer also has to deal with iterators, which are secondary objects which
+have to do with the implementation of containers, and are irrelevant to the
+application program's problem domain. Some data structures do not require
+context information for traversal, other than the container itself and the node
+from which to traverse. For such data structures, it's desireable to dispense
+with the distracting baggage of an iterator abstraction.} Dictionary nodes are
+represented as a class, and various dictionary kinds are represented as
+template classes.  The C++ program defines classes which contain dictionary
+nodes and keys as members or base classes. Instances of these classes can then
+be inserted into a suitably typed dictionary, instantiated from one of the
+templates. The dictionary class knows automatically how to retrieve the keys
+and nodes from these objects, eliminating the need for the program to express
+any of the conversions from object-to-node, node-to-object or node-to-key,
+which involve spurious syntax and unsafe typecasts. Operations like lookup and
+traversal are performed using the types from the client program, rather than
+types from the dictionary implementation.  Moreover, comparison functions are
+automatically generated for key types which can be compared by the \verb|<|,
+\verb|>| and \verb|==| operators, sparing the program from having to define a
+function in many cases. And, of course, the program is spared from having to
+explicitly call initialization functions like \verb|dnode_init| and
+\verb|dict_init|.
+
+\subsubsection{The {\tt kazlib::dnode} class}
+
+    \label{section:kazlib_dnode}
+    \indexcppclass{kazlib}{dnode}
+
+    \synopsis
+    \begin{verbatim}
+    class dnode : public dnode_t {
+    public:
+        dnode();
+        bool is_in_a_dict();
+    };\end{verbatim}
+    
+    \description
+    The \verb|dnode| inherits from the \verb|dnode_t| C structure, and provides
+    encapsulation for that structure.   The \verb|dnode| class supports
+    neither assignment nor copy construction.
+   
+    \paragraph{The {\tt dnode} default constructor}
+    \indexcppctor{kazlib}{dnode}
+    The constructor for the \verb|dnode| class ensures that the dnode is
+    initialized. The initialization has the same effect as
+    \verb|dnode_init(this, 0)|.
+
+    \indexcppfunc{kazlib}{dnode}{is_in_a_dict}
+
+    \paragraph{The {\tt is_in_a_dict} accessor}
+    This function returns \verb|true| if the node is in a dictionary, 
+    \verb|false| otherwise.
+
+\subsubsection{The {\tt kazlib::dict_base} class}
+    \label{section:kazlib_dict_base}
+    \indexcppclass{kazlib}{dict_base}
+
+    \synopsis
+    \begin{verbatim}
+    template <
+        typename NODE_METHOD,
+        typename KEY_METHOD,
+        ...
+    >
+    class dict_base : public dict_t {
+    protected:
+        typedef typename KEY_METHOD::KEY_TYPE KEY;
+        typedef typename NODE_METHOD::ITEM_TYPE ITEM;
+        dict_base(dictcount_t dict_count);
+    public:
+        void insert(ITEM *pitem);
+        void insert(ITEM &item);
+        void erase(ITEM *pitem);
+        void erase(ITEM &item);
+        ITEM *lookup(const KEY *pkey);
+        ITEM *lookup(const KEY &key);
+        ITEM *upper_bound(const KEY *pkey);
+        ITEM *upper_bound(const KEY &key);
+        ITEM *lower_bound(const KEY *pkey);
+        ITEM *lower_bound(const KEY &key);
+        ITEM *first();
+        ITEM *last();
+        ITEM *next(ITEM *pitem);
+        ITEM *next(ITEM &item);
+        ITEM *prev(ITEM *pitem);
+        ITEM *prev(ITEM &item);
+    };\end{verbatim}
+
+    \description
+    The \verb|dict_base| template class is not intended to be directly used.
+    It is a base class from which the remaining dictionary classes
+    are derived. It encapsulates all of the core dictionary operations,
+    which are common to all of the derived classes. The class makes
+    references to the types \verb|KEY| and \verb|ITEM|. These are derived
+    from the template parameters, which must expand to classes that
+    are constructed according to particular conventions that are
+    described in the section \ref{section:dict_implementation}.
+    The \verb|ITEM| type represents the type of the object which is being
+    stored in the Dictionary. This object contains at least one \verb|dnode|
+    as a data member, base class or other association.  Each object object of
+    type \verb|ITEM| also has an associated key of type \verb|KEY|.
+    By means of material provided through the
+    \verb|NODE_METHOD| template argument, the
+    \verb|dict_base| is able to find the appropriate \verb|dnode| which
+    is embedded inside an \verb|ITEM|, and vice versa: to navigate from
+    a \verb|dnode| to the \verb|ITEM| object. Likewise, \verb|dict_base|
+    can retrieve the \verb|KEY| associated with an \verb|ITEM|,
+    with the help of \verb|KEY_METHOD|.
+
+    The \verb|dict_base| class supports neither assignment nor copy
+    construction.
+
+    \paragraph{The {\tt dict_base} default constructor}
+    \indexcppctor{kazlib}{dict_base}
+    The \verb|dict_base| template class inherits from the \verb|dict_t|
+    structure, and its protected default constructor initializes that base
+    structure as if by a call to \verb|dict_init|. The constructor passes
+    through the \verb|dict_count| parameter ot that function. If the template
+    class is instantiated to allow duplicate keys, then the
+    \verb|dict_allow_dupes| function is also invoked on the base structure.
+    Whether or not duplicate keys are are allowed is controlled by the
+    instantiation of the template through its base classes.
+
+    \paragraph{The {\tt count} function}
+    \indexcppfunc{kazlib}{dict_base}{count}
+    The \verb|count| function is a wrapper for \verb|dict_count|.
+
+    \paragraph{The {\tt insert} function}
+    \indexcppfunc{kazlib}{dict_base}{insert}
+    The two overloads of the \verb|insert| function maps the \verb|pitem|
+    pointer or \verb|item| reference to a \verb|dnode_t *| node pointer, and a
+    \verb|void *| key, and uses these values to call \verb|dict_insert| to add
+    the object to the dictionary.
+
+    \paragraph{The {\tt erase} function}
+    \indexcppfunc{kazlib}{dict_base}{erase}
+    The two \verb|erase| overloads maps the \verb|pitem| pointer or \verb|item|
+    reference to a \verb|dnode_t *| node pointer, and uses this pointer to call
+    \verb|dict_delete| to remove the item from the dictionary.
+
+    \paragraph{The {\tt lookup} function}
+    \indexcppfunc{kazlib}{dict_base}{lookup}
+    The two overloads of the \verb|lookup| function convert the \verb|pkey|
+    pointer or the \verb|key| reference directly to a \verb|void *| pointer,
+    which is used as the key in a call to \verb|dict_lookup|. 
+    If that function returns a non-null value, this value is converted
+    to an \verb|ITEM *| pointer and returned. Otherwise a null pointer
+    is returned.
+
+    \paragraph{The {\tt upper_bound} function}
+    \indexcppfunc{kazlib}{dict_base}{upper_bound}
+    The two overloads of the \verb|upper_bound| function convert the \verb|pkey|
+    pointer or the \verb|key| reference directly to a \verb|void *| pointer,
+    which is used as the key in a call to \verb|dict_upper_bound|.
+    If that function returns a non-null value, this value is converted
+    to an \verb|ITEM *| pointer and returned. Otherwise a null pointer
+    is returned.
+
+    \paragraph{The {\tt lower_bound} function}
+    \indexcppfunc{kazlib}{dict_base}{lower_bound}
+    The two overloads of the \verb|lower_bound| function convert the \verb|pkey|
+    pointer or the \verb|key| reference directly to a \verb|void *| pointer,
+    which is used as the key in a call to \verb|dict_lower_bound|.
+    If that function returns a non-null value, this value is converted
+    to an \verb|ITEM *| pointer and returned. Otherwise a null pointer
+    is returned.
+
+    \paragraph{The {\tt first} function}
+    \indexcppfunc{kazlib}{dict_base}{first}
+    This function is a wrapper for \verb|dict_first|. 
+    If that function returns a non-null value, this value is converted
+    to an \verb|ITEM *| pointer and returned. Otherwise a null pointer
+    is returned.
+    
+    \paragraph{The {\tt last} function}
+    \indexcppfunc{kazlib}{dict_base}{last}
+    This function is a wrapper for \verb|dict_last|. 
+    If that function returns a non-null value, this value is converted
+    to an \verb|ITEM *| pointer and returned. Otherwise a null pointer
+    is returned.
+
+    \paragraph{The {\tt next} function}
+    \indexcppfunc{kazlib}{dict_base}{next}
+    The two overloads of the \verb|next| function maps the \verb|pitem|
+    pointer or \verb|item| reference to a \verb|dnode_t *| node pointer, 
+    and uses this values to call \verb|dict_next|.
+    
+    \paragraph{The {\tt prev} function}
+    \indexcppfunc{kazlib}{dict_base}{prev}
+    The two overloads of the \verb|prev| function maps the \verb|pitem|
+    pointer or \verb|item| reference to a \verb|dnode_t *| node pointer, 
+    and uses this values to call \verb|dict_prev|.
+
+\subsubsection{The {\tt kazlib::dict} class}
+    \label{section:kazlib_dict}
+    \indexcppclass{kazlib}{dict}
+
+    \synopsis
+    \begin{verbatim}
+    template <
+        class ITEM,
+        typename KEY,
+        dnode ITEM::* DNODE_OFFSET,
+        KEY ITEM::* KEY_OFFSET,
+        bool ALLOW_DUPES = false,
+        int (*COMP)(const KEY &, const KEY &) = default_compare
+    >
+    class dict : public dict_base< ... >
+    {
+    public:
+        dict(dictcount_t dict_count = DICTCOUNT_T_MAX);
+    };\end{verbatim}
+
+    \description
+
+    The \verb|dict| template class provides a dictionary which holds
+    \verb|ITEM| objects which have a \verb|dnode| embedded in them
+    as a data member, and which have a key of type \verb|KEY|
+    also embedded in them as a member. (Note: this template class is
+    functionally identical to the template class \verb|dict_mdmk|, but
+    the two are distinct, incompatible types).
+
+    The template parameters are used to generate, from the \verb|dict|
+    template, a customized class which statically (at compile time) encodes
+    knowledge about where in each \verb|ITEM| object can be found the
+    \verb|dnode| and \verb|key|.
+
+    Template parameter \verb|ITEM| specifies the type of the items. This must be
+    a class.
+
+    Template parameter \verb|KEY| specifies the key type.
+
+    The template parameter \verb|DNODE_OFFSET| is a pointer-to-data-member
+    type with respect to the \verb|ITEM| class.  It specifies which member in
+    the \verb|ITEM| class is the \verb|dnode| which this  \verb|dict| class
+    should use for linking that object into the Dictionary.
+
+    The template parameter \verb|KEY_OFFSET| is also a pointer-to-data-member
+    with respect to the \verb|ITEM| class. It specifies which member of the
+    \verb|ITEM| object is to be taken to be the key.
+
+    The template parameter \verb|ALLOW_DUPES| is a boolean, defaulting to
+    false. If specified as \verb|true|, the template generates a dictionary
+    which constructs itself to allow duplicate objects. This attribute
+    is consequently part of the dictionary type. The initialization with
+    respect to this attribute is actually done in the \verb|dict_base| base
+    class; the template argument is propagated to it.
+
+    The template parameter \verb|COMP| is a pointer to a non-member,
+    or to a comparison function.  If an argument is not supplied, then
+    a default comparison function is used, which compares keys using
+    the operators \verb|<|, \verb|>| and \verb|==|. In this case, the
+    type passed as the \verb|KEY| template parameter must be prepared
+    to support these operations, either ``natively'' (if it is a basic type),
+    or via suitable member or non-member overloaded operators.
+
+    Since \verb|dict| derives from \verb|dict_base|, it inherits all of the
+    inheritable member functions such as \verb|insert|, et cetera.
+
+    \paragraph{The {\tt dict} default constructor}
+    \indexcppctor{kazlib}{dict}
+
+    The \verb|dict| constructor passes the \verb|count| parameter
+    to the \verb|dict_base| base class constructor. 
+
+    \example
+    In this example, a user defined class called \verb|person|
+    is composed of a unique integer identifier, a first name and a last name.
+    Three dictionaries are constructed. One maintains the records ordered
+    by their integer ID. The others by last and first name. Since first
+    and last names are not unique, these dictionaries allow duplicates.
+
+    The first and last names are C++ strings of type \verb|string|.
+    This type has a member function \verb|compare| whose multiple overloads
+    all return a value which has the semantics of a Kazlib comparison function.
+    However, the \verb|dict| template requires a member function, so a wrapper
+    is required.
+
+    \begin{verbatim}
+    #include <string>
+    #include <iostream>
+    #include "dict.h"
+
+    using std::string;
+    using std::cout;
+    using std::endl;
+
+    using kazlib::dnode;
+    using kazlib::dict;
+
+    class person {
+    public:
+      int id;
+      string first_name;  
+      string last_name;
+    public:
+      dnode id_dn;
+      dnode first_name_dn;
+      dnode last_name_dn;
+
+      person(int id, const string &fn, const string &ln)
+      : id(id), first_name(fn), last_name(ln)
+      {
+      }
+
+      void print()
+      {
+        cout << id << ": " << first_name << " " << last_name << endl;
+      }
+    };
+
+    int string_compare(const string &left, const string &right)
+    {
+      return left.compare(right);
+    }
+
+    int main()
+    {
+      person p1(1, "John", "Smith");
+      person p2(2, "Mary", "Brown");
+      person p3(3, "Daisuke", "Takayama");
+      person p4(4, "Zheng", "Shui-Yun");
+      person p5(5, "Jaswinder", "Bhatta");
+      person p6(6, "Jarek", "Kozlowski");
+
+      dict<person, int, 
+           &person::id_dn, &person::id> by_id;
+
+      dict<person, string, &person::first_name_dn, 
+           &person::first_name> by_first_name;
+
+      dict<person, string, &person::last_name_dn, 
+           &person::last_name> by_last_name;
+
+      by_id.insert(p1);
+      by_first_name.insert(p1);
+      by_last_name.insert(p1);
+
+      by_id.insert(p2);
+      by_first_name.insert(p2);
+      by_last_name.insert(p2);
+
+      by_id.insert(p3);
+      by_first_name.insert(p3);
+      by_last_name.insert(p3);
+
+      by_id.insert(p4);
+      by_first_name.insert(p4);
+      by_last_name.insert(p4);
+
+      by_id.insert(p5);
+      by_first_name.insert(p5);
+      by_last_name.insert(p5);
+
+      by_id.insert(p6);
+      by_first_name.insert(p6);
+      by_last_name.insert(p6);
+
+      person *pi;
+
+      cout << "person records ordered by id:" << endl;
+
+      for (pi = by_id.first(); pi != 0; pi = by_id.next(pi))
+        pi->print();
+
+      cout << "person records ordered by last name:" << endl;
+
+      for (pi = by_last_name.first(); pi != 0; pi = by_last_name.next(pi))
+        pi->print();
+
+      cout << "person records ordered by first name:" << endl;
+
+      for (pi = by_first_name.first(); pi != 0; pi = by_first_name.next(pi))
+        pi->print();
+
+      return 0;
+    }\end{verbatim}
+    The output produced by the example is:
+    \begin{verbatim}
+    person records ordered by id:
+    1: John Smith
+    2: Mary Brown
+    3: Daisuke Takayama
+    4: Zheng Shui-Yun
+    5: Jaswinder Bhatta
+    6: Jarek Kozlowski
+    person records ordered by last name:
+    5: Jaswinder Bhatta
+    2: Mary Brown
+    6: Jarek Kozlowski
+    4: Zheng Shui-Yun
+    1: John Smith
+    3: Daisuke Takayama
+    person records ordered by first name:
+    3: Daisuke Takayama
+    6: Jarek Kozlowski
+    5: Jaswinder Bhatta
+    1: John Smith
+    2: Mary Brown
+    4: Zheng Shui-Yun\end{verbatim}
+
+\subsubsection{The {\tt kazlib::dict_bdbk} class}
+
+    \label{section:kazlib_dict_bdbk}
+
+
+    \indexcppclass{kazlib}{dict_bdbk}
+
+    \synopsis
+    \begin{verbatim}
+    template <
+        class ITEM,
+        bool ALLOW_DUPES = false,
+        int (*COMP)(const ITEM &, const ITEM &) = default_compare
+    >
+    class dict_bdbk : public dict_base< ... >
+    {
+    public:
+        dict_bdbk(dictcount_t dict_count = DICTCOUNT_T_MAX);
+    };\end{verbatim}
+
+    \description
+    The \verb|dict_bdbk| template class is very similar to the \verb|dict|
+    class.  It similarly derives from \verb|dict_base|. However, it has a
+    different set of template parameters. The suffix \verb|bdbk| stands for
+    ``base dnode, base key''. This means that dictionaries instantiated
+    from this template class assume that the type \verb|ITEM| either is, or is
+    derived from, the key type, and furthermore, that it has \verb|dnode| as a
+    base class. Accordingly, this class has no pointer-to-member template
+    parameters \verb|DNODE_OFFSET| and \verb|KEY_OFFSET|.
+    Also note that the \verb|COMP| function takes references to \verb|ITEM|
+    rather than to a distinct \verb|KEY| type.
+
+\subsubsection{The {\tt kazlib::dict_mdbk} class}
+
+    \label{section:kazlib_dict_mdbk}
+    \indexcppclass{kazlib}{dict_mdbk}
+
+    \synopsis
+    \begin{verbatim}
+    template <
+        class ITEM,
+        typename KEY,
+        dnode ITEM::* DNODE_OFFSET,
+        bool ALLOW_DUPES = false,
+        int (*COMP)(const ITEM &, const ITEM &) = default_compare
+    >
+    class dict_mdbk : public dict_base< ... >
+    {
+    public:
+        dict_mdbk(dictcount_t dict_count = DICTCOUNT_T_MAX);
+    };\end{verbatim}
+
+    \description
+    The \verb|dict_mdbk| template class is very similar to the \verb|dict|
+    class.  It similarly derives from \verb|dict_base|. However, it has a
+    different set of template parameters. The suffix \verb|mdbk| stands for
+    ``member dnode, base key''. This means that dictionaries instantiated
+    from this template class assume that the type \verb|ITEM| either is,
+    or is derived from, the key type. The dnode used with the dictionary,
+    however, is a regular member of the \verb|ITEM| class, and must be
+    declared to the \verb|dict_mdbk| by a pointer-to-member template argument
+    to the parameter \verb|DNODE_OFFSET|. However, there are no
+    \verb|KEY| and \verb|KEY_OFFSET| parameters, and the comparison function
+    \verb|COMP| takes references to \verb|ITEM|.
+
+\subsubsection{The {\tt kazlib::dict_bdmk} class}
+
+    \label{section:kazlib_dict_bdmk}
+    \indexcppclass{kazlib}{dict_bdmk}
+
+    \synopsis
+    \begin{verbatim}
+    template <
+        class ITEM,
+        typename KEY,
+        KEY ITEM::* KEY_OFFSET,
+        bool ALLOW_DUPES = false,
+        int (*COMP)(const KEY &, const KEY &) = default_compare
+    >
+    class dict_bdmk : public dict_base< ... >
+    {
+    public:
+        dict_bdmk(dictcount_t dict_count = DICTCOUNT_T_MAX);
+    };\end{verbatim}
+
+    \description
+    The \verb|dict_bdmk| template class is very similar to the \verb|dict|
+    class.  It similarly derives from \verb|dict_base|. However, it has a
+    different set of template parameters. The suffix \verb|mdbk| stands for
+    ``base dnode, member key''. This means that dictionaries instantiated
+    from this template class assume that the type \verb|ITEM| inherits
+    from the dnode type, and that base dnode is to be used for linking
+    these items to the dictionary. The key used, however, is a regular
+    member of the \verb|ITEM| class, and must be
+    declared to the \verb|dict_bdmk| template class by arguments to
+    the type parameter \verb|KEY| and the pointer-to-member
+    parameter \verb|KEY_OFFSET|. There is no \verb|DNODE_OFFSET| parameter.
+
+\subsubsection{The {\tt kazlib::dict_mdmk} class}
+
+    \label{section:kazlib_dict_mdmk}
+    \indexcppclass{kazlib}{dict}
+
+    The \verb|dict_mdmk| class is an exact replica of \verb|dict| class.
+    However, it is a dictinct type. Even if \verb|dict| and \verb|dict_mdmk|
+    are used to instantiate two classes using exactly the same template
+    parameters, respectively, the resulting classes are
+    incompatible types.\footnote{Rationale: This class is provided for naming
+    orthogonality.}
+
 \subsection{Implementation}
+\index{Dictionary component!reference implementation}
+\label{section:dict_implementation}
 
 TODO
 
@@ -4197,6 +4753,9 @@ accordingly.
 \index{symbols!preprocessor|see{macros}}
 \index{symbols!type names|see{typedefs}}
 \index{symbols!function names|see{functions}}
+\index{namespace!kazlib@{\tt kazlib}|see{{\tt kazlib} C"+"+ namespace}}
+\index{namespace!reserved|see {symbols}}
+\index{C"+"+!symbols defined|see{{\tt kazlib} C"+"+ namespace}}
 \printindex
 
 \end{document}
