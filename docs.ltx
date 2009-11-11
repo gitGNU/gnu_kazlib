@@ -66,10 +66,10 @@
 \def\indexcppns#1{\index{#1@{\tt #1} C"+"+ namespace}}
 \def\indexcppclass#1#2{\index{#1@{\tt #1} C"+"+ namespace!#2@{\tt #2} class}
                        \index{#2@{\tt #2} class}}
-\def\indexcppctor#1#2{\index{#1@{\tt #1}
-                             C"+"+ namespace!#2@{\tt #2}
-                                             class!#2@{\tt #2::#2} constructor}
-                             \index{#2@{\tt #2::#2} constructor}}
+\def\indexcppspecial#1#2#3{\index{#1@{\tt #1}
+                                  C"+"+ namespace!#2@{\tt #2}
+                                                  class!#2@{\tt #2::#2} #3}
+                             \index{#2@{\tt #2::#2} #3}}
 \def\indexcppfunc#1#2#3{\index{#1@{\tt #1}
                                C"+"+ namespace!#2@{\tt #2}
                                                class!#3@{\tt #2::#3} function}
@@ -3356,23 +3356,36 @@ explicitly call initialization functions like \verb|dnode_init| and
     class dnode : public dnode_t {
     public:
         dnode();
+        dnode(const dnode &);
+        dnode &operator = (const dnode &);
         bool is_in_a_dict();
     };\end{verbatim}
     
     \description
     The \verb|dnode| inherits from the \verb|dnode_t| C structure, and provides
-    encapsulation for that structure.   The \verb|dnode| class supports
-    neither assignment nor copy construction.
+    encapsulation for that structure.   The \verb|dnode| class is transparent
+    with respect to copy construction and assignment. If it is used as
+    a base class or member of a class, it does not interfere with simple
+    member-for-member copy construction or assignment of that class.
    
     \paragraph{The {\tt dnode} default constructor}
-    \indexcppctor{kazlib}{dnode}
+    \indexcppspecial{kazlib}{dnode}{constructor}
     The constructor for the \verb|dnode| class ensures that the dnode is
     initialized. The initialization has the same effect as
     \verb|dnode_init(this, 0)|.
 
-    \indexcppfunc{kazlib}{dnode}{is_in_a_dict}
+    \paragraph{The {\tt dnode} copy constructor}
+    \indexcppspecial{kazlib}{dnode}{copy constructor}
+    The copy constructor for the \verb|dnode| class behaves exactly like
+    the default constructor. It ignores its argument, and thus does not copy
+    anything.
+
+    \paragraph{The {\tt dnode} assignment operator}
+    \indexcppspecial{kazlib}{dnode}{assignment operator}
+    The assignment operator for the \verb|dnode| class does nothing.
 
     \paragraph{The {\tt is_in_a_dict} accessor}
+    \indexcppfunc{kazlib}{dnode}{is_in_a_dict}
     This function returns \verb|true| if the node is in a dictionary, 
     \verb|false| otherwise.
 
@@ -3436,7 +3449,7 @@ explicitly call initialization functions like \verb|dnode_init| and
     construction.
 
     \paragraph{The {\tt dict_base} default constructor}
-    \indexcppctor{kazlib}{dict_base}
+    \indexcppspecial{kazlib}{dict_base}{constructor}
     The \verb|dict_base| template class inherits from the \verb|dict_t|
     structure, and its protected default constructor initializes that base
     structure as if by a call to \verb|dict_init|. The constructor passes
@@ -3583,7 +3596,7 @@ explicitly call initialization functions like \verb|dnode_init| and
     inheritable member functions such as \verb|insert|, et cetera.
 
     \paragraph{The {\tt dict} default constructor}
-    \indexcppctor{kazlib}{dict}
+    \indexcppspecial{kazlib}{dict}{constructor}
 
     The \verb|dict| constructor passes the \verb|count| parameter
     to the \verb|dict_base| base class constructor. 

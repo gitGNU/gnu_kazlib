@@ -155,6 +155,8 @@ namespace kazlib
     class dnode : public dnode_t {
     public:
         dnode() { dnode_init(this, 0); }
+        dnode(const dnode &) { dnode_init(this, 0); }
+        dnode &operator = (const dnode &) { return *this; }
         bool is_in_a_dict()
         {
             return dnode_is_in_a_dict(this);
