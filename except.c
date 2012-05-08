@@ -368,7 +368,8 @@ static void bottom_level(void)
 {
     char buf[256];
     printf("throw exception? "); fflush(stdout);
-    fgets(buf, sizeof buf, stdin);
+    if (fgets(buf, sizeof buf, stdin) == 0)
+        return;
 
     if (buf[0] >= 0 && toupper(buf[0]) == 'Y')
         except_throw(1, 1, "nasty exception");
@@ -381,7 +382,7 @@ static void top_level(void)
     except_cleanup_pop(0);
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
     static const except_id_t match[] = { { 1, 1 }, { 1, 2 } };
     except_t *ex;

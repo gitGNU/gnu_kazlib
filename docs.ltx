@@ -2415,10 +2415,13 @@ The following class or template class names shall be declared
 if the header is included in a C++ implementation. The names
 are all placed within a namespace called \verb|kazlib|:
 \begin{verbatim}
-    kazlib::dnode               kazlib::dict_mdbk
-    kazlib::dict_base           kazlib::dict_bdmk
-    kazlib::dict                kazlib::dict_mdmk
-    kazlib::dict_bdbk
+    kazlib::dnode               kazlib::compare_with_function
+    kazlib::dict_base           kazlib::dupes_allowed
+    kazlib::dict                kazlib::dupes_disallowed
+    kazlib::dnode_is_member     kazlib::static_items
+    kazlib::dnode_is_base       kazlib::dynamic_items
+    kazlib::key_is_member       kazlib::placement_items
+    kazlib::key_is_base  
 \end{verbatim}
 The \verb|kazlib| namespace is reserved.\indexcppns{kazlib}
 
@@ -3869,7 +3872,7 @@ explicitly call initialization functions like \verb|dnode_init| and
     invoking their destructor. That is to say, if the items are of
     type \verb|T|, then for each pointer-to-item \verb|T *p|,
     the destructor is invoked using the \verb|p->~T()|
-    expression.\footnote{This feature is intented for situations arising
+    expression.\footnote{This feature is intended for situations arising
     in programs which use placement {\tt new} to construct objects
     in existing storage. If such objects are managed in a dictionary,
     it may be convenient to have the dictionary invoke the destructor

@@ -63,6 +63,8 @@ typedef struct {
     sfx_rating_t eff;
 } context_t;
 
+#define CONTEXT_T_INIT { 0, 0, 0, 0 }
+
 /*
  * Declarator type: abstract, concrete or both
  */
@@ -588,7 +590,7 @@ static void chk_cast(context_t *expr)
     } curr = partype, old = partype, peek = partype;
 
     /* history for backtracking: two cast expression elements back */
-    context_t old_expr = { 0 }, cur_expr = { 0 };
+    context_t old_expr = CONTEXT_T_INIT, cur_expr = CONTEXT_T_INIT;
 
     for (;;) {
         context_t type, comma, unr;

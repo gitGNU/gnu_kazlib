@@ -1,0 +1,24 @@
+2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
+
+	Starting ChangeLog
+
+	* Makefile.gcc (CFLAGS): Dropping -pedantic, adding -W.
+
+	* dict.c (free_nodes): Unused static function removed.
+	(dnode_alloc, dnode_free, new_node, del_node): Added casts
+	of unused arguments to void to suppress unused variable warning.
+
+	* docs.ltx: Revised out of date section about what C++ identifiers are
+	exposed by dict.h. Fixed typo.
+
+	* except.c (bottom_level): Fixed waring about return value from
+	fgets being ignored.
+	(main): Switched to no-arguments main since argc and argv were
+	not used.
+
+	* hash.c (hnode_alloc, hnode_free, new_node): Added casts
+	of unused arguments to void to suppress unused variable warning.
+
+	* sfx.c (CONTEXT_T_INIT): New macro.
+	(chk_cast): Use CONTEXT_T_INIT macro to initialize variables
+	of type context_t.

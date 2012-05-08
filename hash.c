@@ -744,11 +744,13 @@ int hash_isempty(hash_t *hash)
 
 static hnode_t *hnode_alloc(void *context)
 {
+    (void) context;
     return (hnode_t *) malloc(sizeof *hnode_alloc(NULL));
 }
 
 static void hnode_free(hnode_t *node, void *context)
 {
+    (void) context;
     free(node);
 }
 
@@ -894,6 +896,8 @@ static hnode_t *new_node(void *c)
     static hnode_t few[5];
     static int count;
 
+    (void) c;
+
     if (count < 5)
         return few + count++;
 
@@ -902,6 +906,8 @@ static hnode_t *new_node(void *c)
 
 static void del_node(hnode_t *n, void *c)
 {
+    (void) n;
+    (void) c;
 }
 
 int main(void)

@@ -125,20 +125,6 @@ static void rotate_right(dnode_t *upper)
 }
 
 /*
- * Do a postorder traversal of the tree rooted at the specified
- * node and free everything under it.  Used by dict_free().
- */
-
-static void free_nodes(dict_t *dict, dnode_t *node, dnode_t *nil)
-{
-    if (node == nil)
-        return;
-    free_nodes(dict, node->left, nil);
-    free_nodes(dict, node->right, nil);
-    dict->freenode(node, dict->context);
-}
-
-/*
  * This procedure performs a verification that the given subtree is a binary
  * search tree. It performs an inorder traversal of the tree using the
  * dict_next() successor function, verifying that the key of each node is
@@ -1043,11 +1029,13 @@ int dict_contains(dict_t *dict, dnode_t *node)
 
 static dnode_t *dnode_alloc(void *context)
 {
+    (void) context;
     return (dnode_t *) malloc(sizeof *dnode_alloc(NULL));
 }
 
 static void dnode_free(dnode_t *node, void *context)
 {
+    (void) context;
     free(node);
 }
 
@@ -1340,6 +1328,8 @@ static dnode_t *new_node(void *c)
     static dnode_t few[5];
     static int count;
 
+    (void) c;
+
     if (count < 5)
         return few + count++;
 
@@ -1348,6 +1338,8 @@ static dnode_t *new_node(void *c)
 
 static void del_node(dnode_t *n, void *c)
 {
+    (void) n;
+    (void) c;
 }
 
 static int prompt = 0;

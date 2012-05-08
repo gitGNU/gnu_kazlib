@@ -24,8 +24,7 @@
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 CC	= gcc
-#CFLAGS	= -Wid-clash-15 -Wall -Wmissing-prototypes -ansi -pedantic -g
-CFLAGS	= -Wall -Wmissing-prototypes -ansi -pedantic -O2 -DNDEBUG
+CFLAGS	= -Wall -W -Wmissing-prototypes -ansi -O2 -DNDEBUG
 
 project: dep tdict tlist thash teh tsfx
 
