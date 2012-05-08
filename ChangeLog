@@ -1,7 +1,5 @@
 2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
 
-	Starting ChangeLog
-
 	* Makefile.gcc (CFLAGS): Dropping -pedantic, adding -W.
 
 	* dict.c (free_nodes): Unused static function removed.
@@ -22,3 +20,195 @@
 	* sfx.c (CONTEXT_T_INIT): New macro.
 	(chk_cast): Use CONTEXT_T_INIT macro to initialize variables
 	of type context_t.
+
+2009-11-12  Kaz Kylheku  <kaz@gmail.com>
+
+	Terminology change. The alloc traits should use item
+	and not node terminology, since destruction is applied
+	to items, not dnodes.
+
+	* dict.h (kazlib::static_nodes): Renamed to static_items.
+	(kazlib::dynamic_nodes): Renamed to dynamic_items.
+	(kazlib::placement_nodes): Renamed to placement_items.
+	(kazlib::dict_dfl_feat, kazlib::alloc_feature): Declarations updated.
+	(kazlib::trait_combinator<>): Partial specializations updated.
+
+	* docs.ltx: Updated.
+
+
+2009-11-12  Kaz Kylheku  <kaz@kylheku.com>
+
+	* dict.c (dict_clear): Reverts back to internal linkage.
+
+	* dict.h (dict_clear): Declaration removed.
+	(kazlib::dict_base, kazlib::dict_bdbk, kazlib::dict_bdmk,
+	kazlib::dict_mdbk, kazlib::dict_mkmk): Template classes removed.
+
+	* docs.ltx: Revamped documentation of C++ utilities for dict,
+	from the perspective of the trait combination paradigm.
+	The base class is now just dict.
+
+
+2009-11-12  Kaz Kylheku  <kaz@kylheku.com>
+
+	Added a new function safe_traverse, which performs an iterative
+	bottom-up traversal rather than a recursive one.
+	
+	dict_free_nodes retargetted to use this function.
+	
+	dict_clear exposed as external function.
+
+	* dict.c (safe_traverse): New function.
+	(dict_free_nodes): Use safe_traverse.
+	(dict_init_alloc): New function for one step initialization
+	with custom allocator functions.
+	(dict_clear): Changed from internal to external linkage.
+	
+	* dict.h (dict_init_alloc, dict_clear): Declared.
+
+2009-11-12  Kaz Kylheku  <kaz@kylheku.com>
+
+	* docs.ltx: Condense index.  Do not list every function under the
+	functions category in the index; they are all in the main index.
+
+2009-11-10  Kaz Kylheku  <kaz@kylheku.com>
+
+	The dnode class must support assignment and copy construction.
+
+	* dict.h (kazlib::dnode): Copy constructor and assignment operator
+	added.
+
+	* docs.ltx: Documented these functions and added index entries.
+
+2009-11-10  Kaz Kylheku  <kaz@kylheku.com>
+
+	* docs.ltx: Added remarks to first C++ example that the comparison
+	function is not strictly needed.  Added new file sorting example for
+	dict_bdbk.
+
+2009-11-09  Kaz Kylheku  <kaz@kylheku.com>
+
+	* docs.ltx: Fix issues in C++ example. The allow dupes was not turned
+	on, so the example would have blown up on duplicate first or last names.
+
+2009-11-09  Kaz Kylheku  <kaz@kylheku.com>
+
+	New C++ utilities in dict.h.
+	Documented in docs.ltx.
+	Tabs eliminated from docs.ltx.
+
+	* dict.h: If __cplusplus is defined, include the <functional> header.
+	(kazlib::dnode, kazlib::dict_base, kazlib::dnode_is_member,
+	kazlib::key_is_member, kazlib::compare_with_function,
+	kazlib::dnode_is_base, kazlib::key_is_base, kazlib::dict,
+	kazlib::dict_bdbk, kazlib::dict_bdmk, kazlib::dict_mdbk,
+	kazlib::dict_mkmk): New template classes.
+	(kazlib::default_compare): New template function.
+
+	* docs.ltx: Updated to clarify that Kazlib is also a C++ library.
+	New index entries. Documented new C++ utilities.
+
+2009-11-08  Kaz Kylheku  <kaz@kylheku.com>
+
+	Use dict_init in dict_create instead of repeated code.
+	All code compiles as C++ now.
+
+	* dict.c (dict_create): Use dict_init. Cast added to
+	return value of malloc.
+	(dict_init_like): Parameter template renamed to orig. This is
+	because template is a C++ keyword.
+	(dict_delete): Parameter delete renamed to target, because
+	delete is a C++ keyword.
+	(dnode_alloc): Cast added to return value of malloc.
+	(dict_load_end): Some casts added where enum members are computed
+	values. C++ type safety of enumerations doesn't allow the
+	direct assignment.
+	(comparef): Added casts from const void * to const char *.
+	(dupstring): malloc cast.
+	(main): Casts on dnode_get.
+
+	* except.c (except_throwf): Cast on except_alloc.
+	(top_level): Cast added when passing string literal to
+	except_cleanup_push because const char * doesn't convert
+	to void *.
+	(main): Local variable catch renamed to match to avoid
+	clash with C++ keyword.
+
+	* hash.c (grow_table, shrink_table): Cast on return value of
+	realloc.
+	(hash_create, hnode_alloc, hnode_create): Caston return value of malloc.
+	(hash_fun_default, hash_comp_default): Casts from void * to
+	character pointers.
+	(tokenize): Added casts from const void * to const char *.
+	(dupstring): malloc cast.
+	(main): Casts on hnode_get.
+
+	* list.c (list_create): Cast on malloc. Avoid C++ keyword new.
+	(lnode_pool_create): Cast on malloc.
+	(list_ins_after, list_ins_before, lnode_borrow): Avoid C++ keyword new.
+	(tokenize): Added casts from const void * to const char *.
+	(dupstring): malloc cast.
+	(main): Casts on lnode_get.
+
+	* sfx.c (speculate, sfx_determine): Variable catch renamed to match.
+	(lookup_cache): Cast on hnode_get return value.
+	(cache_result): Cast on hnode_get and malloc.
+
+2009-11-08  Kaz Kylheku  <kaz@kylheku.com>
+
+	* Makefile.gcc: Add missing .o files to clean target rule.
+
+2009-11-08  Kaz Kylheku  <kaz@kylheku.com>
+
+	* except.c, hash.c, list.c, sfx.c: Tabs converted to spaces.
+
+2009-11-08  Kaz Kylheku  <kaz@kylheku.com>
+
+	* CHANGES, Makefile.gcc, Makefile.vc, blast.pl, dict.c, docs.ltx
+	hash.h, except.c, except.h, hash.c, hash.h, list.c, list.h, sfx.c:
+	Trailing whitespace removed. Some reformatting of text.
+
+2009-11-08  Kaz Kylheku  <kaz@kylheku.com>
+
+	New functions: dict_strict_lower_bound, dict_strict_upper_bound.
+	Clearer, more concise documentation for dict_lower_bound and
+	dict_upper_bound.
+
+	* dict.c (dict_strict_lower_bound, disc_strict_upper_bound):
+	New functions.
+	(main): < and > commands added for exercising new functions.
+
+	* dict.h (dict_strict_lower_bound, disc_strict_upper_bound):
+	Declared.  
+
+	* docs.ltx: Documentation updated.
+
+2009-11-06  Kaz Kylheku  <kaz@kylheku.com>
+
+	Switching to Modified BSD license.
+	Getting rid of RCS keyword cruft.
+	Obsolete MUST_READ file removed.
+
+	* CHANGES: RCS keywords removed.
+
+	* Makefile.gcc: Copyright header added.
+
+	* Makefile.vc: Likewise.
+
+	* README: RCS keywords removed, and documentation thereof also.
+
+	* blast.pl: Copyright header added.
+
+	* dict.c, except.c, hash.c, list.c, sfx.c: Copyright header replaced.
+	rcsid removed.
+
+	* dict.h, excepth.h, hash.h, list.h, sfx.h: Copyright header replaced.
+
+	* docs.ltx: Copyright header added. rcsid removed.
+
+	* MUST_READ: File removed.
+
+2009-11-06  Kaz Kylheku  <kaz@kylheku.com>
+
+	Original Kazlib 1.20 distribution from July 2001 now lives
+	in a new repository.
