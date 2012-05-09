@@ -1,5 +1,10 @@
 2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
 
+	* Makefile.gcc: $($(DLIB)) Fix -soname.
+	(install): Use macros instead of hard-coded library names.
+
+2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
+
 	* docs.ltx: Bump release and date.
 
 2012-05-08  Kaz Kylheku  <kaz@kylheku.com>

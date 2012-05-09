@@ -76,7 +76,7 @@ $(SLIB): $(OBJS)
 	ar rcs $@ $^
 
 $(DLIB): $(SLIB)
-	$(CC) -shared -Wl,-soname,$(patsubst %.so.%,%.so.1,$@) -o $@ $^
+	$(CC) -shared -Wl,-soname,$(patsubst %.so.1.0.0,%.so.1,$@) $^ -o $@ 
 
 CLEAN += docs.dvi docs.aux docs.log
 docs.dvi: docs.ltx docs.toc docs.ind
@@ -94,7 +94,7 @@ CLEAN += docs.idx docs.ilg
 docs.idx: docs.ltx
 	latex docs.ltx
 
-install: libkaz.so.1.0.0 libkaz.a
+install: $(DLIB) $(SLIB)
 	install -m 0644 $(DLIB) $(SLIB) $(prefix)/lib
 	mkdir -p $(prefix)/include/kazlib ; \
 	install -m 0644 *.h $(prefix)/include/kazlib
