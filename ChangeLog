@@ -1,5 +1,10 @@
 2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
 
+	* Makefile.gcc: Use --whole-archive to link the static library contents
+	properly into the shared library.
+
+2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
+
 	* Makefile.gcc: $($(DLIB)) Fix -soname.
 	(install): Use macros instead of hard-coded library names.
 

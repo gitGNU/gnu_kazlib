@@ -76,7 +76,7 @@ $(SLIB): $(OBJS)
 	ar rcs $@ $^
 
 $(DLIB): $(SLIB)
-	$(CC) -shared -Wl,-soname,$(patsubst %.so.1.0.0,%.so.1,$@) $^ -o $@ 
+	$(CC) -shared -Wl,-soname,$(patsubst %.so.1.0.0,%.so.1,$@) -Wl,--whole-archive,$< -Wl,--no-whole-archive -o $@ 
 
 CLEAN += docs.dvi docs.aux docs.log
 docs.dvi: docs.ltx docs.toc docs.ind
