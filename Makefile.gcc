@@ -23,48 +23,73 @@
 # IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
-CC	= gcc
-CFLAGS	= -Wall -W -Wmissing-prototypes -ansi -O2 -DNDEBUG
+CFLAGS	:= -Wall -W -Wmissing-prototypes -ansi -O2 -DNDEBUG
+CXXFLAGS = $(filter-out -Wmissing-prototypes,$(CFLAGS))
 
-project: dep tdict tlist thash teh tsfx
+CLEAN := ID tags except.o hash.o dict.o sfx.o
+
+PROGS := tdict tlist thash teh tsfx
+TESTS := tests/dict-1
+
+CLEAN += $(PROGS) $(TESTS)
+project: $(PROGS) $(TESTS)
+
+tlist tdict thash teh tsfx: CFLAGS += -DKAZLIB_TEST_MAIN
+
+# with GNU Make 3.82+ we can make the above target specific assignment 
+# private instead of the following hack:
+%.o: CFLAGS := $(filter-out -DKAZLIB_TEST_MAIN,$(CFLAGS))
+
+.depend tests/%.o: CFLAGS += -I$(shell pwd)
+
+TESTSOBJS := $(patsubst %,%.o,$(TESTS))
+CLEAN += $(TESTSOBJS)
+$(TESTS): $(TESTSOBJS)
+
+$(filter tests/dict-%,$(TESTS)): dict.o
+
+tlist tdict thash teh tsfx:
+	$(CC) $(CFLAGS) -o $@ $^
 
 tlist: list.c list.h
-	$(CC) $(CFLAGS) -DKAZLIB_TEST_MAIN -o tlist list.c
 
 tdict: dict.c dict.h
-	$(CC) $(CFLAGS) -DKAZLIB_TEST_MAIN -o tdict dict.c
 
 thash: hash.c hash.h
-	$(CC) $(CFLAGS) -DKAZLIB_TEST_MAIN -o thash hash.c
 
 teh: except.c except.h
-	$(CC) $(CFLAGS) -DKAZLIB_TEST_MAIN -o teh except.c
 
 tsfx: sfx.c sfx.h except.o hash.o
-	$(CC) $(CFLAGS) -DKAZLIB_TEST_MAIN -o tsfx sfx.c except.o hash.o
 
+tests/dict-1:
+	$(CXX) -o $@ $^
+
+CLEAN += docs
 docs: docs.dvi
 
+CLEAN += docs.dvi docs.aux docs.log
 docs.dvi: docs.ltx docs.toc docs.ind
 	latex docs.ltx
 
+CLEAN += docs.ind
 docs.ind: docs.idx docs.ist
 	makeindex -s docs.ist docs.idx
 
+CLEAN += docs.toc
 docs.toc: docs.ltx
 	latex docs.ltx
 
+CLEAN += docs.idx docs.ilg
 docs.idx: docs.ltx
 	latex docs.ltx
 
 clean:
-	-rm tags tlist tdict thash teh tsfx list.o dict.o \
-	  hash.o sfx.o except.o docs.aux docs.log docs.dvi \
-	  docs.toc docs.idx docs.ind docs.ilg
+	-rm $(CLEAN)
 
-dep: .depend
+ifneq ($(MAKECMDGOALS),clean)
+.depend:
+	$(CC) $(CXXFLAGS) -MM *.c tests/*.cc > .depend
 
-.depend: *.h
-	gcc -MM *.c > .depend
-
+CLEAN += .depend
 -include .depend
+endif
