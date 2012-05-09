@@ -1,3 +1,12 @@
+New in 1.21
+
+    1. New dict functions: dict_strict_lower_bound, dict_strict_upper_bound.
+    2. All code compiles as C++: C++ keywords are avoided, casts added
+       where necessary, etc.
+    3. Cleaner code (tabs replaced with spaces, spurious whitespace removed).
+    4. New C++ template-based wrappers for dict module, based on
+       a trait combining paradigm.
+
 New in 1.20
 
     1. Bugfix in except.h. Modified non-volatile auto variables were
