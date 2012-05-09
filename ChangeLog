@@ -1,5 +1,9 @@
 2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
 
+	* docs.ltx: Bump release and date.
+
+2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
+
 	* Makefile.gcc: integrating patches from Debian maintainer
 	Bálint Réczey, in slightly different ways. A static and
 	shared library is now built, and there is an install target.
