@@ -42,12 +42,14 @@ int reverse_compare(const string &left, const string &right)
 
 int main()
 {
-  person p1(1, "Mary", "Smith");
-  person p2(2, "John", "Smith");
-  person p3(3, "Daisuke", "Takayama");
-  person p4(4, "Zheng", "Shui-Yun");
-  person p5(5, "Jaswinder", "Bhatta");
-  person p6(6, "Jarek", "Kozlowski");
+  person p[] = {
+    person(1, "Mary", "Smith"),
+    person(2, "John", "Smith"),
+    person(3, "Daisuke", "Takayama"),
+    person(4, "Zheng", "Shui-Yun"),
+    person(5, "Jaswinder", "Bhatta"),
+    person(6, "Jarek", "Kozlowski")
+  };
 
   dict<dnode_is_member<person, &person::id_dn>,
        key_is_member<person, int, &person::id> > by_id;
@@ -61,29 +63,11 @@ int main()
        key_is_member<person, string, &person::last_name>,
        dupes_allowed> by_last_name;
 
-  by_id.insert(p1);
-  by_first_name.insert(p1);
-  by_last_name.insert(p1);
-
-  by_id.insert(p2);
-  by_first_name.insert(p2);
-  by_last_name.insert(p2);
-
-  by_id.insert(p3);
-  by_first_name.insert(p3);
-  by_last_name.insert(p3);
-
-  by_id.insert(p4);
-  by_first_name.insert(p4);
-  by_last_name.insert(p4);
-
-  by_id.insert(p5);
-  by_first_name.insert(p5);
-  by_last_name.insert(p5);
-
-  by_id.insert(p6);
-  by_first_name.insert(p6);
-  by_last_name.insert(p6);
+  for (size_t i = 0; i < sizeof p / sizeof p[0]; i++) {
+    by_id.insert(p[i]);
+    by_first_name.insert(p[i]);
+    by_last_name.insert(p[i]);
+  }
 
   person *pi;
 

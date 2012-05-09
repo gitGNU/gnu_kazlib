@@ -1,5 +1,10 @@
 2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
 
+	* tests/dict-1.cc: Declare objects in an array. This exercises the
+	copy constructor of dnode, and eliminates duplicate code.
+
+2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
+
 	* Makefile.gcc: Revamped to take advantage of various GNU Make
 	tricks. Builds new C++ test case, which is taken from the LaTeX doc.
 
