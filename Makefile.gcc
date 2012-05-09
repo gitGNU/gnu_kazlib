@@ -23,16 +23,21 @@
 # IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
-CFLAGS	:= -Wall -W -Wmissing-prototypes -ansi -O2 -DNDEBUG
-CXXFLAGS = $(filter-out -Wmissing-prototypes,$(CFLAGS))
+CFLAGS	 ?= -Wall -W -Wmissing-prototypes -ansi -O2 -DNDEBUG
+CXXFLAGS ?= $(filter-out -Wmissing-prototypes,$(CFLAGS))
+prefix   ?= /usr/local
 
-CLEAN := ID tags except.o hash.o dict.o sfx.o
+CLEAN := ID tags
 
+OBJS := except.o hash.o dict.o sfx.o
 PROGS := tdict tlist thash teh tsfx
 TESTS := tests/dict-1
 
-CLEAN += $(PROGS) $(TESTS)
-project: $(PROGS) $(TESTS)
+SLIB := libkaz.a
+DLIB := $(SLIB:.a=.so.1.0.0)
+
+CLEAN += $(PROGS) $(TESTS) $(OBJS) $(SLIB) $(DLIB)
+project: $(PROGS) $(TESTS) $(SLIB) $(DLIB)
 
 tlist tdict thash teh tsfx: CFLAGS += -DKAZLIB_TEST_MAIN
 
@@ -67,6 +72,12 @@ tests/dict-1:
 CLEAN += docs
 docs: docs.dvi
 
+$(SLIB): $(OBJS)
+	ar rcs $@ $^
+
+$(DLIB): $(SLIB)
+	$(CC) -shared -Wl,-soname,$(patsubst %.so.%,%.so.1,$@) -o $@ $^
+
 CLEAN += docs.dvi docs.aux docs.log
 docs.dvi: docs.ltx docs.toc docs.ind
 	latex docs.ltx
@@ -82,6 +93,11 @@ docs.toc: docs.ltx
 CLEAN += docs.idx docs.ilg
 docs.idx: docs.ltx
 	latex docs.ltx
+
+install: libkaz.so.1.0.0 libkaz.a
+	install -m 0644 $(DLIB) $(SLIB) $(prefix)/lib
+	mkdir -p $(prefix)/include/kazlib ; \
+	install -m 0644 *.h $(prefix)/include/kazlib
 
 clean:
 	-rm $(CLEAN)

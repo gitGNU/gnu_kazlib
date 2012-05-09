@@ -1,5 +1,11 @@
 2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
 
+	* Makefile.gcc: integrating patches from Debian maintainer
+	Bálint Réczey, in slightly different ways. A static and
+	shared library is now built, and there is an install target.
+
+2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
+
 	* tests/dict-1.cc: Declare objects in an array. This exercises the
 	copy constructor of dnode, and eliminates duplicate code.
 
