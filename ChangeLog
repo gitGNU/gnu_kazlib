@@ -1,3 +1,9 @@
+2012-05-10  Kaz Kylheku  <kaz@kylheku.com>
+
+	* docs.ltx: Added missing documentation for dict_merge and
+	dict_similar. Documented all of the C++ additions of the previous
+	commit.
+
 2012-05-09  Kaz Kylheku  <kaz@kylheku.com>
 
 	Exposing the remaining dict API via the C++ interface.

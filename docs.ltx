@@ -2396,20 +2396,21 @@ The following external function names shall be declared:
     dict_set_allocator          dict_count
     dict_destroy                dict_isempty
     dict_free_nodes             dict_isfull
-    dict_init                   dict_contains
-    dict_verify                 dict_allow_dupes
-    dict_lookup                 dnode_is_in_a_dict
-    dict_lower_bound            dnode_create
-    dict_upper_bound            dnode_init
-    dict_strict_lower_bound     dnode_destroy
-    dict_strict_upper_bound     dnode_get
-    dict_insert                 dnode_getkey
-    dict_delete                 dnode_put
-    dict_alloc_insert           dict_process
-    dict_delete_free            dict_load_begin
-    dict_first                  dict_load_next
-    dict_last                   dict_load_end
-    dict_next                   dict_free
+    dict_free                   dict_contains
+    dict_init                   dict_allow_dupes
+    dict_verify                 dnode_is_in_a_dict
+    dict_lookup                 dnode_create
+    dict_lower_bound            dnode_init
+    dict_upper_bound            dnode_destroy
+    dict_strict_lower_bound     dnode_get
+    dict_strict_upper_bound     dnode_getkey
+    dict_insert                 dnode_put
+    dict_delete                 dict_process
+    dict_alloc_insert           dict_load_begin
+    dict_delete_free            dict_load_next
+    dict_first                  dict_load_end
+    dict_last                   dict_merge
+    dict_next                   
 \end{verbatim}
 The following class or template class names shall be declared
 if the header is included in a C++ implementation. The names
@@ -3309,6 +3310,48 @@ of nodes.  (See sections \ref{section:dict_load_begin} to
     a dictionary from a ordered sequence.  It breaks the binding between
     the \verb|dict_load_t| context object and the dictionary.
 
+\subsubsection{The {\tt dict_similar} function}
+
+    \label{section:dict_similar}
+    \indexfunc{dict_similar}
+
+    \synopsis
+    \begin{verbatim}
+    int dict_similar(const dict_t *, const dict_t *);\end{verbatim}
+
+    \description
+    The \verb|dict_similar| function inspects two dictionaries and returns
+    1 if they are similar, otherwise 0.
+
+    Two dictionaries are similar if the following conditions are met:
+    \begin{enumerate}
+    \item Both have exactly the same comparison function.
+    \item Both have the same allocator and deallocator functions.
+    \item Both have the same allocator context pointer.
+    \item Both dictionaries allow duplicates, or else both disallow duplicates.
+    \end{enumerate}
+
+\subsubsection{The {\tt dict_merge} function}
+
+    \label{section:dict_merge}
+    \indexfunc{dict_merge}
+
+    \synopsis
+    \begin{verbatim}
+    void dict_merge(dict_t *, dict_t *);\end{verbatim}
+
+    \constraints
+    The two arguments must point to dictionaries which are considered
+    similar under the \verb|dict_similar| function.
+
+    \description
+    The \verb|dict_merge| function transfers nodes from the right
+    dictionary to the left dictionary. The right dictionary becomes empty.
+    This operation is done more efficiently than repeated insertions
+    of the items from the right dictionary into the left dictionary.
+    The running time is given by $O(n + m)$ where $n$  and $m$ are,
+    respectively, the number of nodes in the left and right dictionary.
+
 \subsection{C++ Dictionary Utilities}
 
 The C++ Dictionary Utilities included in the \verb|dict.h| header allow the
@@ -3413,12 +3456,26 @@ explicitly call initialization functions like \verb|dnode_init| and
         ITEM *upper_bound(const KEY &key);
         ITEM *lower_bound(const KEY *pkey);
         ITEM *lower_bound(const KEY &key);
+        ITEM *strict_upper_bound(const KEY *pkey);
+        ITEM *strict_upper_bound(const KEY &key);
+        ITEM *strict_lower_bound(const KEY *pkey);
+        ITEM *strict_lower_bound(const KEY &key);
         ITEM *first();
         ITEM *last();
         ITEM *next(ITEM *pitem);
         ITEM *next(ITEM &item);
         ITEM *prev(ITEM *pitem);
         ITEM *prev(ITEM &item);
+        bool isempty();
+        bool isfull();
+        bool contains(ITEM *pitem);
+        bool contains(ITEM &pitem);
+        template <typename FUNCTOR> void process(FUNCTOR &f);
+        void load_begin();
+        void load_next(ITEM *pitem);
+        void load_next(ITEM &pitem);
+        void load_end();
+        void merge(dict *other);
     };\end{verbatim}
 
     \description
@@ -3516,6 +3573,17 @@ explicitly call initialization functions like \verb|dnode_init| and
     by the traits \verb|static_items|, \verb|dynamic_items| and
     \verb|placement_items|.
 
+    \paragraph{The {\it load} feature}
+
+    The {\it load} feature determines whether it is possible for
+    the {\tt load_begin}, {\tt load_next} and {\tt load_end} member
+    functions of a dictionary to be used. By default, this feature
+    is absent. Loading a dictionary from a sorted sequence requires
+    a context object. (See section \ref{section:dict_load_begin}).
+    If a dictionary type is declared with the load feature, then it
+    has this context object. The name of the trait which supplies
+    the {\it load} feature is {\tt load_support}.
+
     \paragraph{The {\tt dict} constructor}
     \indexcppspecial{kazlib}{dict<>}{constructor}
     The \verb|dict| template class inherits from the \verb|dict_t|
@@ -3599,6 +3667,23 @@ explicitly call initialization functions like \verb|dnode_init| and
     to an \verb|ITEM *| pointer and returned. Otherwise a null pointer
     is returned.
 
+    \paragraph{The {\tt strict_upper_bound} function}
+    \indexcppfunc{kazlib}{dict<>}{strict_upper_bound}
+    The two overloads of the \verb|strict_upper_bound| function convert the
+    \verb|pkey| pointer or the \verb|key| reference directly to a \verb|void *|
+    pointer, which is used as the key in a call to
+    \verb|dict_strict_upper_bound|.  If that function returns a non-null value,
+    this value is converted to an \verb|ITEM *| pointer and returned. Otherwise
+    a null pointer is returned.
+
+    \paragraph{The {\tt strict_lower_bound} function}
+    \indexcppfunc{kazlib}{dict<>}{strict_lower_bound} The two overloads of the
+    \verb|strict_lower_bound| function convert the \verb|pkey| pointer or the
+    \verb|key| reference directly to a \verb|void *| pointer, which is used as
+    the key in a call to \verb|dict_strict_lower_bound|.  If that function
+    returns a non-null value, this value is converted to an \verb|ITEM *|
+    pointer and returned. Otherwise a null pointer is returned.
+
     \paragraph{The {\tt first} function}
     \indexcppfunc{kazlib}{dict<>}{first}
     This function is a wrapper for \verb|dict_first|.
@@ -3624,6 +3709,44 @@ explicitly call initialization functions like \verb|dnode_init| and
     The two overloads of the \verb|prev| function maps the \verb|pitem|
     pointer or \verb|item| reference to a \verb|dnode_t *| node pointer,
     and uses this values to call \verb|dict_prev|.
+
+    \paragraph{The {\tt isempty} function}
+    \indexcppfunc{kazlib}{dict<>}{isempty}
+    The \verb|isempty| function is a wrapper for \verb|dict_isempty|.
+    The C return value convention of \verb|dict_isempty| is mapped
+    to the C++ \verb|bool| type.
+
+    \paragraph{The {\tt isfull} function}
+    \indexcppfunc{kazlib}{dict<>}{isfull}
+    The \verb|isfull| function is a wrapper for \verb|dict_isfull|.
+    The C return value convention of \verb|dict_isfull| is mapped
+    to the C++ \verb|bool| type.
+
+    \paragraph{The {\tt load_begin} function}
+    \indexcppfunc{kazlib}{dict<>}{load_begin}
+    The \verb|load_begin| function is a wrapper for \verb|dict_load_begin|.
+    Unlike \verb|dict_load_begin|, it does not require a context argument. 
+    An object which is built into the dictionary is implicitly used as the
+    context.  In order to have this object, the dictionary must have the {\it
+    load} feature, selected via the \verb|load_support| template argument. 
+
+    \paragraph{The {\tt load_next} function}
+    \indexcppfunc{kazlib}{dict<>}{load_next}
+    The \verb|load_next| function is a wrapper for \verb|dict_load_next|,
+    except that it does not require the context argument, and the
+    node and key arguments are replaced by a single argument which is an item.
+    The \verb|dnode_t| and key arguments needed by \verb|dict_load_next| are
+    implicitly retrieved from the item.  The \verb|load_begin| function must be
+    called before \verb|load_next| can be used.
+
+    \paragraph{The {\tt load_end} function}
+    \indexcppfunc{kazlib}{dict<>}{load_end}
+    The \verb|load_end| function is a wrapper for \verb|dict_load_end|.
+    Unlike \verb|dict_load_end|, it does not require a context argument. 
+
+    \paragraph{The {\tt merge} function}
+    \indexcppfunc{kazlib}{dict<>}{merge}
+    The \verb|merge| function is a wrapper for \verb|dict_merge|.
 
 \subsubsection{The {\tt kazlib::dnode_is_member} trait template class}
     \label{section:kazlib_dnode_is_member}
