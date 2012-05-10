@@ -1,3 +1,33 @@
+2012-05-09  Kaz Kylheku  <kaz@kylheku.com>
+
+	Exposing the remaining dict API via the C++ interface.
+
+	* dict.h (kazlib::load_suport, kazlib::no_load_support): New feature
+	expression classes.
+	(kazlib::dict_dfl_feat): New typedef member, load_t, establishing that
+	the default feature is not to support loading.
+	(kazlib::trait_combinator<load_support, REST>): New trait combinator
+	for adding load support.
+	(kazlib::trait_combinator<no_load_support, REST>): New trait combinator
+	for adding load support.
+	(kazlib::dict::load_ctx): New class member. Type is empty class
+	if the dict has no load support, and so takes no space.
+	In this case, use of the load_begin/load_next/load_end functions
+	will not compile.
+	(kazlib::dict::strict_upper_bound, kazlib::dict::strict_lower_bound,
+	kazlib::dict::isempty, kazlib::dict::isfull, kazlib::dict::contains):
+	New functions.
+	(kazlib::dict::process_func): New static member function.
+	(kazlib::dict::process): New template member function.
+	(kazlib::dict::load_begin, kazlib::dict::load_next,
+	kazlib::dict::load_end, kazlib::dict::merge): New member functions.
+
+	* tests/dict-1.cc (print): New function, friend to person class.
+	(main): by_id dictionary declared with load_support.
+	Dict functions load_begin, load_next and load_end are used
+	to load the items in order. The process member function is
+	used to print the contents of by_first_name.
+
 2012-05-08  Kaz Kylheku  <kaz@kylheku.com>
 
 	* Makefile.gcc: Use --whole-archive to link the static library contents

@@ -13,6 +13,7 @@ using kazlib::dnode_is_member;
 using kazlib::key_is_member;
 using kazlib::dupes_allowed;
 using kazlib::compare_with_function;
+using kazlib::load_support;
 
 class person {
 public:
@@ -24,6 +25,8 @@ public:
   dnode first_name_dn;
   dnode last_name_dn;
 
+  friend void print(person *);
+
   person(int id, const string &fn, const string &ln)
   : id(id), first_name(fn), last_name(ln)
   {
@@ -34,6 +37,11 @@ public:
     cout << id << ": " << first_name << " " << last_name << endl;
   }
 };
+
+void print(person *p)
+{
+  p->print();
+}
 
 int reverse_compare(const string &left, const string &right)
 {
@@ -52,7 +60,8 @@ int main()
   };
 
   dict<dnode_is_member<person, &person::id_dn>,
-       key_is_member<person, int, &person::id> > by_id;
+       key_is_member<person, int, &person::id>,
+       load_support> by_id;
 
   dict<dnode_is_member<person, &person::first_name_dn>,
        key_is_member<person, string, &person::first_name>,
@@ -63,8 +72,14 @@ int main()
        key_is_member<person, string, &person::last_name>,
        dupes_allowed> by_last_name;
 
+  by_id.load_begin();
+
+  for (size_t i = 0; i < sizeof p / sizeof p[0]; i++)
+    by_id.load_next(p[i]);
+
+  by_id.load_end();
+
   for (size_t i = 0; i < sizeof p / sizeof p[0]; i++) {
-    by_id.insert(p[i]);
     by_first_name.insert(p[i]);
     by_last_name.insert(p[i]);
   }
@@ -83,8 +98,7 @@ int main()
 
   cout << "person records ordered by first name, descending:" << endl;
 
-  for (pi = by_first_name.first(); pi != 0; pi = by_first_name.next(pi))
-    pi->print();
+  by_first_name.process(print);
 
   return 0;
 }

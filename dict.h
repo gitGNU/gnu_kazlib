@@ -285,9 +285,16 @@ namespace kazlib
         }
     };
 
+    struct load_support {
+    };
+
+    struct no_load_support {
+    };
+
     struct dict_dfl_feat {
         typedef dupes_disallowed dupe_feature;
         typedef static_items alloc_feature;
+        typedef no_load_support load_t;
     };
 
     template <typename FIRST, typename REST>
@@ -345,6 +352,11 @@ namespace kazlib
     template <typename REST>
     struct trait_combinator<placement_items, REST> : public REST {
         typedef placement_items alloc_feature;
+    };
+
+    template <typename REST>
+    struct trait_combinator<load_support, REST> : public REST {
+        typedef dict_load_t load_t;
     };
 
     template <typename T1 = dict_dfl_feat,
@@ -405,6 +417,8 @@ namespace kazlib
         typedef traits<TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5> tr;
         typedef typename tr::key_feature::KEY_TYPE KEY;
         typedef typename tr::dnode_feature::ITEM_TYPE ITEM;
+
+        typename tr::load_t load_ctx;
 
         static dnode_t *item2dnode(ITEM *item)
         {
@@ -485,6 +499,22 @@ namespace kazlib
         {
             return lower_bound(&key);
         }
+        ITEM *strict_upper_bound(const KEY *pkey)
+        {
+            return dnode2item(dict_strict_upper_bound(this, pkey));
+        }
+        ITEM *strict_upper_bound(const KEY &key)
+        {
+            return strict_upper_bound(&key);
+        }
+        ITEM *strict_lower_bound(const KEY *pkey)
+        {
+            return dnode2item(dict_strict_lower_bound(this, pkey));
+        }
+        ITEM *strict_lower_bound(const KEY &key)
+        {
+            return strict_lower_bound(&key);
+        }
         ITEM *first()
         {
             return dnode2item(dict_first(this));
@@ -508,6 +538,54 @@ namespace kazlib
         ITEM *prev(ITEM &item)
         {
             return prev(&item);
+        }
+        bool isempty()
+        {
+            return dict_isempty(this) != 0;
+        }
+        bool isfull()
+        {
+            return dict_isfull(this) != 0;
+        }
+        bool contains(ITEM *pitem)
+        {
+            return dict_contains(this, item2dnode(pitem)) != 0;
+        }
+        bool contains(ITEM &pitem)
+        {
+            return contains(&pitem);
+        }
+        template <typename FUNCTOR>
+        static void dnode_process_func(dict_t *dict, dnode_t *node, void *f)
+        {
+            FUNCTOR *pf = reinterpret_cast<FUNCTOR *>(f);
+            (void) dict;
+            (*pf)(dnode2item(node));
+        }
+        template <typename FUNCTOR> void process(FUNCTOR &f)
+        {
+            dict_process(this, reinterpret_cast<void *>(&f),
+                         dnode_process_func<FUNCTOR>);
+        }
+        void load_begin()
+        {
+            dict_load_begin(&load_ctx, this);
+        }
+        void load_next(ITEM *pitem)
+        {
+            dict_load_next(&load_ctx, item2dnode(pitem), item2key(pitem));
+        }
+        void load_next(ITEM &pitem)
+        {
+            load_next(&pitem);
+        }
+        void load_end()
+        {
+            dict_load_end(&load_ctx);
+        }
+        void merge(dict *other)
+        {
+            dict_merge(this, other);
         }
     };
 }
