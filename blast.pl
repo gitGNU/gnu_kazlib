@@ -1,6 +1,6 @@
 #!/usr/bin/perl
-# Copyright 2009
-# Kaz Kylheku <kkylheku@gmail.com>
+# Copyright 1998-2012
+# Kaz Kylheku <kaz@kylheku.com>
 # Vancouver, Canada
 # All rights reserved.
 #

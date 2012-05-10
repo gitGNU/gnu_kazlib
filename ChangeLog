@@ -1,5 +1,35 @@
 2012-05-10  Kaz Kylheku  <kaz@kylheku.com>
 
+	* Makefile.gcc: Updated copyright and e-mail address.
+
+	* Makefile.vc: Likewise.
+
+	* blast.pl: Likewise.
+
+	* dict.c: Likewise.
+
+	* dict.h: Likewise.
+
+	* docs.ltx: Likewise.
+
+	* except.c: Likewise.
+
+	* except.h: Likewise.
+
+	* hash.c: Likewise.
+
+	* hash.h: Likewise.
+
+	* list.c: Likewise.
+
+	* list.h: Likewise.
+
+	* sfx.c: Likewise.
+
+	* sfx.h: Likewise.
+
+2012-05-10  Kaz Kylheku  <kaz@kylheku.com>
+
 	* docs.ltx: Added missing documentation for dict_merge and
 	dict_similar. Documented all of the C++ additions of the previous
 	commit.
